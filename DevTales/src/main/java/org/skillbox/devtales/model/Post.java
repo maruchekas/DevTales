@@ -12,8 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import lombok.Data;
 import org.skillbox.devtales.model.data.ModerationStatus;
 
+@Data
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -45,76 +47,4 @@ public class Post {
   @OneToMany(mappedBy = "post")
   private List<Comment> comments;
 
-
-  public int getId() {
-    return Id;
-  }
-
-  public void setId(int id) {
-    Id = id;
-  }
-
-  public int getIsActive() {
-    return isActive;
-  }
-
-  public void setIsActive(int isActive) {
-    this.isActive = isActive;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
-  }
-
-  public ModerationStatus getModerationStatus() {
-    return moderationStatus;
-  }
-
-  public void setModerationStatus(ModerationStatus moderationStatus) {
-    this.moderationStatus = moderationStatus;
-  }
-
-  public Date getDateTime() {
-    return dateTime;
-  }
-
-  public void setDateTime(Date dateTime) {
-    this.dateTime = dateTime;
-  }
-
-  public int getViewCount() {
-    return viewCount;
-  }
-
-  public void setViewCount(int viewCount) {
-    this.viewCount = viewCount;
-  }
-
-  public int getModeratorId() {
-    return moderatorId;
-  }
-
-  public void setModeratorId(int moderatorId) {
-    this.moderatorId = moderatorId;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
 }

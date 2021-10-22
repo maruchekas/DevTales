@@ -2,11 +2,16 @@ package org.skillbox.devtales.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import lombok.Data;
+import org.skillbox.devtales.model.data.SettingCode;
 
+@Data
 @Entity
 @Table(name = "global_settings")
 public class GlobalSetting {
@@ -15,8 +20,9 @@ public class GlobalSetting {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private String code;
+  private SettingCode code;
 
   @Column(nullable = false)
   private String name;

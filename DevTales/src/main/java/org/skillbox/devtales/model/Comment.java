@@ -1,6 +1,6 @@
 package org.skillbox.devtales.model;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +8,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "post_comments")
 public class Comment {
@@ -18,7 +20,7 @@ public class Comment {
   private int id;
 
   @Column(nullable = false)
-  private LocalDateTime time;
+  private Date time;
 
   @Column(nullable = false, columnDefinition = "TEXT")
   private String text;
@@ -31,51 +33,4 @@ public class Comment {
   @ManyToOne(optional = false)
   private Post post;
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public LocalDateTime getTime() {
-    return time;
-  }
-
-  public void setTime(LocalDateTime time) {
-    this.time = time;
-  }
-
-  public String getText() {
-    return text;
-  }
-
-  public void setText(String text) {
-    this.text = text;
-  }
-
-  public int getParentId() {
-    return parentId;
-  }
-
-  public void setParentId(int parentId) {
-    this.parentId = parentId;
-  }
-
-  public User getUser() {
-    return user;
-  }
-
-  public void setUser(User user) {
-    this.user = user;
-  }
-
-  public Post getPost() {
-    return post;
-  }
-
-  public void setPost(Post post) {
-    this.post = post;
-  }
 }
