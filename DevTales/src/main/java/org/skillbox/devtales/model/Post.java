@@ -1,6 +1,7 @@
 package org.skillbox.devtales.model;
 
 import java.sql.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -8,6 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.skillbox.devtales.model.data.ModerationStatus;
 
@@ -32,7 +35,16 @@ public class Post {
   private int viewCount;
   @Column(nullable = true)
   private int moderatorId;
-  private int userid;
+
+  @ManyToOne(optional = false)
+  private User user;
+
+  @OneToMany(mappedBy = "post")
+  private List<Vote> votes;
+
+  @OneToMany(mappedBy = "post")
+  private List<Comment> comments;
+
 
   public int getId() {
     return Id;
@@ -98,11 +110,11 @@ public class Post {
     this.moderatorId = moderatorId;
   }
 
-  public int getUserid() {
-    return userid;
+  public User getUser() {
+    return user;
   }
 
-  public void setUserid(int userid) {
-    this.userid = userid;
+  public void setUser(User user) {
+    this.user = user;
   }
 }
