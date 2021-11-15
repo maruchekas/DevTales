@@ -20,9 +20,8 @@ public class GlobalSetting {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private SettingCode code;
+  private String code;
 
   @Column(nullable = false)
   private String name;

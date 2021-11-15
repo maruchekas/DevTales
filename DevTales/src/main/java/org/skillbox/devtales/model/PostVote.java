@@ -1,6 +1,6 @@
 package org.skillbox.devtales.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,14 +13,14 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "post_votes")
-public class Vote {
+public class PostVote {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
   @Column(nullable = false)
-  private Date time;
+  private LocalDateTime time;
 
   @Column(nullable = false, columnDefinition = "TINYINT")
   private int value;

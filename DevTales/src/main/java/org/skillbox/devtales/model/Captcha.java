@@ -1,6 +1,6 @@
 package org.skillbox.devtales.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,7 +19,7 @@ public class Captcha {
   private int id;
 
   @Column(nullable = false, columnDefinition = "DATETIME")
-  private Date time;
+  private LocalDateTime time;
 
   @Column(nullable = false, columnDefinition = "TINYTEXT")
   private String code;
