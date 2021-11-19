@@ -16,5 +16,4 @@ public class TagToPost {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-
 }

@@ -33,4 +33,11 @@ public class PostComment {
 
   @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
   private List<PostComment> postComments;
+
+  @ManyToOne(optional = false)
+  private User user;
+
+  @ManyToOne(optional = false)
+  private Post post;
+
 }

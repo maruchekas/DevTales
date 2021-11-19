@@ -1,6 +1,7 @@
 package org.skillbox.devtales.model;
 
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,13 +19,15 @@ public class Tag {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int Id;
+  private int id;
+
+  @Column(nullable = false)
   private String name;
 
   @ManyToMany
-  @JoinTable(name="tag2post",
-      joinColumns=@JoinColumn(name="tag_id"),
-      inverseJoinColumns=@JoinColumn(name="post_id"))
+  @JoinTable(name = "tag2post",
+      joinColumns = @JoinColumn(name = "tag_id"),
+      inverseJoinColumns = @JoinColumn(name = "post_id"))
   private List<Post> posts;
 
 }

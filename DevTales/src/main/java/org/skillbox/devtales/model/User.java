@@ -23,18 +23,17 @@ public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
+
   @Column(nullable = false, columnDefinition = "TINYINT", length = 1)
   private int isModerator;
+
   @Column(nullable = false)
   private LocalDateTime regTime;
+
   @Column(nullable = false)
-  private String name;
-  @Column(nullable = false)
-  private String email;
-  @Column(nullable = false)
-  private String password;
-  private String code;
-  private String photo;
+  private String name, email, password;
+
+  private String code, photo;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<Post> posts;
