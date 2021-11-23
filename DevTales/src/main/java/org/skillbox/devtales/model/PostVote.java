@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 @Entity
@@ -19,16 +20,19 @@ public class PostVote {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(nullable = false)
+  @NonNull
   private LocalDateTime time;
 
-  @Column(nullable = false, columnDefinition = "TINYINT")
+  @Column(columnDefinition = "TINYINT")
+  @NonNull
   private int value;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
+  @NonNull
   private User user;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
+  @NonNull
   private Post post;
 
 }

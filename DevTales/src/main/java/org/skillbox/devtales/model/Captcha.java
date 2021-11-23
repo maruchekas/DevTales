@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 @Entity
@@ -18,13 +19,16 @@ public class Captcha {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(nullable = false, columnDefinition = "DATETIME")
+  @Column(columnDefinition = "DATETIME")
+  @NonNull
   private LocalDateTime time;
 
-  @Column(nullable = false, columnDefinition = "TINYTEXT")
+  @Column(columnDefinition = "TINYTEXT")
+  @NonNull
   private String code;
 
-  @Column(nullable = false, columnDefinition = "TINYTEXT")
+  @Column(columnDefinition = "TINYTEXT")
+  @NonNull
   private String secretCode;
 
 }

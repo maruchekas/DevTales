@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.NonNull;
 import org.skillbox.devtales.model.data.SettingCode;
 
 @Data
@@ -20,13 +21,13 @@ public class GlobalSetting {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(nullable = false)
+  @NonNull
   private String code;
 
-  @Column(nullable = false)
+  @NonNull
   private String name;
 
-  @Column(nullable = false)
+  @NonNull
   private String value;
 
 }

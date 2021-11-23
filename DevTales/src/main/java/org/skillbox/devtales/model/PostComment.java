@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 @Entity
@@ -22,10 +23,11 @@ public class PostComment {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(nullable = false)
+  @NonNull
   private LocalDateTime time;
 
-  @Column(nullable = false, columnDefinition = "TEXT")
+  @Column(columnDefinition = "TEXT")
+  @NonNull
   private String text;
 
   @ManyToOne(optional = true)
@@ -34,10 +36,12 @@ public class PostComment {
   @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
   private List<PostComment> postComments;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
+  @NonNull
   private User user;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
+  @NonNull
   private Post post;
 
 }

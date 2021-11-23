@@ -11,6 +11,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
 @Entity
@@ -21,7 +22,7 @@ public class Tag {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(nullable = false)
+  @NonNull
   private String name;
 
   @ManyToMany

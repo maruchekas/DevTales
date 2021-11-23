@@ -13,9 +13,14 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -24,13 +29,14 @@ public class User {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int id;
 
-  @Column(nullable = false, columnDefinition = "TINYINT", length = 1)
+  @Column(columnDefinition = "TINYINT", length = 1)
+  @NonNull
   private int isModerator;
 
-  @Column(nullable = false)
+  @NonNull
   private LocalDateTime regTime;
 
-  @Column(nullable = false)
+  @NonNull
   private String name, email, password;
 
   private String code, photo;
@@ -42,9 +48,9 @@ public class User {
   private List<PostVote> postVotes;
 
   @ManyToMany
-  @JoinTable(name="post_comments",
-      joinColumns=@JoinColumn(name="user_id"),
-      inverseJoinColumns=@JoinColumn(name="post_id"))
+  @JoinTable(name = "post_comments",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "post_id"))
   private List<Post> postList;
 
 }

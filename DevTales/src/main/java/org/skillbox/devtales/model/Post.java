@@ -15,10 +15,15 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import org.skillbox.devtales.model.data.ModerationStatus;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -26,23 +31,26 @@ public class Post {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int Id;
-  @Column(nullable = false, columnDefinition = "TINYINT", length = 1)
+  @Column(columnDefinition = "TINYINT", length = 1)
+  @NonNull
   private int isActive;
-  @Column(nullable = false)
+  @NonNull
   private String title;
-  @Column(nullable = false, columnDefinition = "TEXT")
+  @Column(columnDefinition = "TEXT")
+  @NonNull
   private String text;
   @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
+  @NonNull
   private ModerationStatus moderationStatus;
-  @Column(nullable = false)
+  @NonNull
   private LocalDateTime dateTime;
   private int viewCount;
 
   @ManyToOne(optional = true)
   private User moderator;
 
-  @ManyToOne(optional = false)
+  @ManyToOne()
+  @NonNull
   private User user;
 
   @OneToMany(mappedBy = "post")
