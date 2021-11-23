@@ -1,5 +1,6 @@
 package org.skillbox.devtales.controller;
 
+import lombok.AllArgsConstructor;
 import org.skillbox.devtales.api.response.AuthCheckResponse;
 import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
@@ -11,29 +12,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api")
 public class ApiGeneralController {
 
-  private final AuthCheckService authCheckService;
   private final TagService tagService;
   private final SettingsService settingsService;
   private final InitResponse initResponse;
-
-  public ApiGeneralController(AuthCheckService authCheckService,
-      TagService tagService,
-      SettingsService settingsService,
-      InitResponse initResponse) {
-    this.authCheckService = authCheckService;
-    this.tagService = tagService;
-    this.settingsService = settingsService;
-    this.initResponse = initResponse;
-  }
-
-  @GetMapping("/auth/check")
-  private AuthCheckResponse authCheck(){
-    return authCheckService.result();
-  }
 
   @GetMapping("/tag")
   private TagResponse tag(){
