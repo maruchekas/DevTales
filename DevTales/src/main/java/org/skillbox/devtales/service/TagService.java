@@ -6,11 +6,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class TagService {
 
-  public TagResponse getTagInfo(){
+  public TagResponse getTag(){
     TagResponse tagResponse = new TagResponse();
-    tagResponse.setName("JAVA");
-    tagResponse.setWeight(0.9);
-
+    tagResponse.setName("Java");
     return tagResponse;
   }
 

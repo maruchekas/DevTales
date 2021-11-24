@@ -8,9 +8,11 @@ VALUES ('code121220', 'mailone@example.ru', 0, 'Egor Petrov', 'hashword121220', 
        ('code121225', 'mailsix@example.ru', 0, 'Евгений Толкунов', 'hashword121225', 'https://clck.ru/YvTgK', current_time());
 
 INSERT INTO posts (date_time, is_active, moderation_status, text, title, view_count, moderator_id, user_id)
-VALUES (current_time(), 0, 'NEW', 'This is an article about modern programming languages', 'A couple words about programming languages', 0, NULL, 1),
-       (current_time(), 0, 'NEW', 'Today JAVA is still among the top programming language', 'Post about JAVA', 0, NULL, 2),
-       (current_time(), 1, 'ACCEPTED', 'The post on the topic of the first programming language', 'The first...', 3, 3, 6);
+VALUES (current_time(), 0, 'NEW', 'На вопрос «С какой книги начать изучение Java?» очень часто отвечают: Thinking in Java Брюса Эккеля.',
+       '«С какой книги начать изучение Java?»', 0, NULL, 1),
+       (current_time(), 0, 'NEW', 'Аудитория GitHub за год выросла на 17 млн пользователей и достигла 73 млн (в 2020 году было 56 млн пользователей.',
+       'GitHub опубликовал ежегодный статистический отчет за 2021 год', 0, NULL, 2),
+       (current_time(), 1, 'ACCEPTED', 'The post on the topic of the first programming language', 'The first or the next...', 3, 3, 6);
 
 INSERT INTO post_comments (text, time, parent_id, post_id, user_id)
 VALUES ('Отличная статья!', current_time(), null, 1, 2),

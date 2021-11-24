@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Setter
 @Getter
-public class AuthCheckResponse {
+public class AuthResponse {
 
   private boolean result;
   private User user;

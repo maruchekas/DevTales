@@ -41,16 +41,16 @@ public class User {
 
   private String code, photo;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private List<Post> posts;
+//  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//  private List<Post> posts;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private List<PostVote> postVotes;
 
-  @ManyToMany
-  @JoinTable(name = "post_comments",
-      joinColumns = @JoinColumn(name = "user_id"),
-      inverseJoinColumns = @JoinColumn(name = "post_id"))
-  private List<Post> postList;
+//  @ManyToMany
+//  @JoinTable(name = "post_comments",
+//      joinColumns = @JoinColumn(name = "user_id"),
+//      inverseJoinColumns = @JoinColumn(name = "post_id"))
+//  private List<Post> postList;
 
 }

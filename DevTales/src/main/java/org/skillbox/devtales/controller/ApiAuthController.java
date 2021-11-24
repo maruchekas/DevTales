@@ -1,8 +1,10 @@
 package org.skillbox.devtales.controller;
 
 import lombok.AllArgsConstructor;
-import org.skillbox.devtales.api.response.AuthCheckResponse;
-import org.skillbox.devtales.service.AuthCheckService;
+import org.skillbox.devtales.api.response.AuthResponse;
+import org.skillbox.devtales.service.AuthService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class ApiAuthController {
 
-  private final AuthCheckService authCheckService;
+  private final AuthService authService;
 
   @GetMapping("/auth/check")
-  public AuthCheckResponse auth(){
-    return authCheckService.result();
+  public ResponseEntity<AuthResponse> auth(){
+    return new ResponseEntity<>(authService.result(), HttpStatus.OK);
   }
 
 }
