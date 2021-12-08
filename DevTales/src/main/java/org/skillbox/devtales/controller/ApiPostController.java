@@ -38,11 +38,12 @@ public class ApiPostController {
 
   @GetMapping("/post")
   public ResponseEntity<PostResponse> getPageOfPosts(
-          @RequestParam(defaultValue = "0") Integer pageNo,
-          @RequestParam(defaultValue = "10") Integer pageSize,
-          @RequestParam(defaultValue = "viewCount") String sortBy)
+          @RequestParam(defaultValue = "0") Integer offset,
+          @RequestParam(defaultValue = "12") Integer limit,
+          @RequestParam(defaultValue = "dateTime") String sortBy)
   {
-    PostResponse response = postService.getAllPosts(pageNo, pageSize, sortBy);
+    PostResponse response = postService.getAllPosts(offset, limit, sortBy);
+    System.out.println(offset + " " + limit + " " + sortBy);
 
     return new ResponseEntity<>(response, new HttpHeaders(), HttpStatus.OK);
   }

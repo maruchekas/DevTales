@@ -33,7 +33,7 @@ public class ApiGeneralController {
 
   @GetMapping("/tag")
   private ResponseEntity<TagResponse> tag(){
-    return new ResponseEntity<>(tagService.getTag(), HttpStatus.OK);
+    return new ResponseEntity<>(tagService.getAllTags(), HttpStatus.OK);
   }
 
 }
