@@ -1,20 +1,14 @@
 package org.skillbox.devtales.model;
 
 import java.time.LocalDateTime;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.List;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.skillbox.devtales.model.data.ModerationStatus;
+import org.skillbox.devtales.model.enums.ModerationStatus;
 
 @Data
 @AllArgsConstructor
@@ -54,16 +48,22 @@ public class Post {
 //  @OneToMany(mappedBy = "post")
 //  private List<PostComment> postComments;
 
-//  @ManyToMany
-//  @JoinTable(name="post_comments",
-//      joinColumns=@JoinColumn(name="post_id"),
-//      inverseJoinColumns=@JoinColumn(name="user_id"))
-//  private List<User> users;
+  @ManyToMany
+  @JoinTable(name = "post_comments",
+          joinColumns = @JoinColumn(name = "post_id"),
+          inverseJoinColumns = @JoinColumn(name = "id"))
+  private List<PostComment> comments;
 
-//  @ManyToMany
-//  @JoinTable(name="tag2post",
-//      joinColumns=@JoinColumn(name="post_id"),
-//      inverseJoinColumns=@JoinColumn(name="tag_id"))
-//  private List<Tag> tags;
+  @ManyToMany
+  @JoinTable(name = "post_votes",
+          joinColumns = @JoinColumn(name = "post_id"),
+          inverseJoinColumns = @JoinColumn(name = "id"))
+  private List<PostVote> postVotes;
+
+  @ManyToMany
+  @JoinTable(name = "tag2post",
+          joinColumns = @JoinColumn(name = "post_id"),
+          inverseJoinColumns = @JoinColumn(name = "tag_id"))
+  private List<Tag> tags;
 
 }

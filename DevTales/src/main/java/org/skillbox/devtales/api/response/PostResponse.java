@@ -1,23 +1,19 @@
 package org.skillbox.devtales.api.response;
 
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
-import org.skillbox.devtales.model.User;
-import org.skillbox.devtales.model.data.ModerationStatus;
+import org.skillbox.devtales.dto.PostDto;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+
+@Component
 @Setter
-  @Getter
-  public class PostResponse {
+@Getter
+public class PostResponse {
 
-    private int id;
-    private int isActive;
-    private String title;
-    private String text;
-    private ModerationStatus moderationStatus;
-    private LocalDateTime dateTime;
-    private int viewCount;
-    private User moderator;
-    private User user;
+    private int count;
+    private List<PostDto> posts;
 
-  }
+
+}
