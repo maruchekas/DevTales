@@ -17,23 +17,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ApiGeneralController {
 
-  private final InitResponse initResponse;
-  private final SettingsService settingsService;
-  private final TagService tagService;
+    private final InitResponse initResponse;
+    private final SettingsService settingsService;
+    private final TagService tagService;
 
-  @GetMapping("/init")
-  private InitResponse init(){
-    return initResponse;
-  }
+    @GetMapping("/init")
+    private InitResponse init() {
+        return initResponse;
+    }
 
-  @GetMapping("/settings")
-  private ResponseEntity<SettingsResponse> settings(){
-    return new ResponseEntity<>(settingsService.getGlobalSettings(), HttpStatus.OK);
-  }
+    @GetMapping("/settings")
+    private ResponseEntity<SettingsResponse> settings() {
+        return new ResponseEntity<>(settingsService.getGlobalSettings(), HttpStatus.OK);
+    }
 
-  @GetMapping("/tag")
-  private ResponseEntity<TagResponse> tag(){
-    return new ResponseEntity<>(tagService.getAllTags(), HttpStatus.OK);
-  }
+    @GetMapping("/tag")
+    private ResponseEntity<TagResponse> tag() {
+        return new ResponseEntity<>(tagService.getAllTags(), HttpStatus.OK);
+    }
 
 }

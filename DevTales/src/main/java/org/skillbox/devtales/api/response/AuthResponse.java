@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Getter
 public class AuthResponse {
 
-  private boolean result;
-  private User user;
+    private boolean result;
+    private User user;
 
 }

@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class ApiAuthController {
 
-  private final AuthService authService;
+    private final AuthService authService;
 
-  @GetMapping("/auth/check")
-  public ResponseEntity<AuthResponse> auth(){
-    return new ResponseEntity<>(authService.result(), HttpStatus.OK);
-  }
+    @GetMapping("/auth/check")
+    public ResponseEntity<AuthResponse> auth() {
+        return new ResponseEntity<>(authService.result(), HttpStatus.OK);
+    }
 
 }

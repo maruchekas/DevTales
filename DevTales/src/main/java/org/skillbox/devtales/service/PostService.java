@@ -23,68 +23,67 @@ import java.util.List;
 @AllArgsConstructor
 public class PostService {
 
-  private final int MIL_TO_SEC = 1000;
+    private final int MIL_TO_SEC = 1000;
 
 
+    private final PostRepository postRepository;
 
-  private final PostRepository postRepository;
+    private final PostVoteRepository postVoteRepository;
 
-  private final PostVoteRepository postVoteRepository;
+    private final ModelMapper modelMapper;
 
-  private final ModelMapper modelMapper;
+    public PostResponse getAllPosts(Integer offset, Integer limit, String sort, String mode) {
 
-  public PostResponse getAllPosts(Integer offset, Integer limit, String sort, String mode) {
+        PostResponse postResponse = new PostResponse();
+        Pageable paging = PageRequest.of(offset, limit, Sort.by(Sort.Direction.DESC, sort));
+        Page<Post> pageResult = postRepository.findAllActiveAndAcceptedPosts(paging);
+        List<PostDto> postDtos = Mapper.convertList(pageResult.getContent(), this::convertPostToDto);
 
-    PostResponse postResponse = new PostResponse();
-    Pageable paging = PageRequest.of(offset, limit, Sort.by(Sort.Direction.DESC, sort));
-    Page<Post> pageResult = postRepository.findAllActiveAndAcceptedPosts(paging);
-    List<PostDto> postDtos = Mapper.convertList(pageResult.getContent(), this::convertPostToDto);
+        postResponse.setCount((int) postRepository.count());
+        postResponse.setPosts(postDtos);
+        return postResponse;
 
-    postResponse.setCount((int) postRepository.count());
-    postResponse.setPosts(postDtos);
-    return postResponse;
-
-  }
-
-  public PostResponse getActivePosts(){
-
-
-    return null;
-  }
-
-  public PostDto getOnePostById(int id) {
-
-    return convertPostToDto(postRepository.getById(id));
-  }
-
-  private PostDto convertPostToDto(Post post){
-    PostDto postDto = modelMapper.map(post, PostDto.class);
-    if (post.getText().length() > 150){
-      String announce = post.getText().substring(0, 150) + "...";
-      postDto.setAnnounce(announce);
-    } else {
-      postDto.setAnnounce(post.getText());
     }
 
-    postDto.setTimestamp(Timestamp.valueOf(post.getDateTime()).getTime() / MIL_TO_SEC);
-    postDto.setViewCount(postDto.getViewCount());
-    postDto.setCommentCount(post.getComments().size());
-    postDto.setLikeCount(getLikeCount(post));
-    postDto.setDislikeCount(getDislikeCount(post));
-    postDto.setUser(convertUserToDto(post.getUser()));
+    public PostResponse getActivePosts() {
 
-    return postDto;
-  }
 
-  private UserDto convertUserToDto(User user){
-    return modelMapper.map(user, UserDto.class);
-  }
+        return null;
+    }
 
-  private int getLikeCount(Post post){
-    return postVoteRepository.findCountLikesOfPostById(post.getId());
-  }
+    public PostDto getOnePostById(int id) {
 
-  private int getDislikeCount(Post post){
-    return postVoteRepository.findCountDislikesOfPostById(post.getId());
-  }
+        return convertPostToDto(postRepository.getById(id));
+    }
+
+    private PostDto convertPostToDto(Post post) {
+        PostDto postDto = modelMapper.map(post, PostDto.class);
+        if (post.getText().length() > 150) {
+            String announce = post.getText().substring(0, 150) + "...";
+            postDto.setAnnounce(announce);
+        } else {
+            postDto.setAnnounce(post.getText());
+        }
+
+        postDto.setTimestamp(Timestamp.valueOf(post.getDateTime()).getTime() / MIL_TO_SEC);
+        postDto.setViewCount(postDto.getViewCount());
+        postDto.setCommentCount(post.getComments().size());
+        postDto.setLikeCount(getLikeCount(post));
+        postDto.setDislikeCount(getDislikeCount(post));
+        postDto.setUser(convertUserToDto(post.getUser()));
+
+        return postDto;
+    }
+
+    private UserDto convertUserToDto(User user) {
+        return modelMapper.map(user, UserDto.class);
+    }
+
+    private int getLikeCount(Post post) {
+        return postVoteRepository.findCountLikesOfPostById(post.getId());
+    }
+
+    private int getDislikeCount(Post post) {
+        return postVoteRepository.findCountDislikesOfPostById(post.getId());
+    }
 }

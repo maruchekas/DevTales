@@ -17,39 +17,39 @@ import java.util.List;
 @AllArgsConstructor
 public class TagService {
 
-  private final TagRepository tagRepository;
+    private final TagRepository tagRepository;
 
-  private final PostRepository postRepository;
+    private final PostRepository postRepository;
 
-  private final TagToPostRepository tagToPostRepository;
+    private final TagToPostRepository tagToPostRepository;
 
-  private final ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-  private static double maxWeight;
+    private static double maxWeight;
 
-  public TagResponse getAllTags(){
-    TagResponse tagResponse = new TagResponse();
-    List<TagDto> tagDtos = Mapper.convertList(tagRepository.findAll(), this::convertTagToDto);
-    tagResponse.setTags(tagDtos);
-    return tagResponse;
-  }
-
-  private TagDto convertTagToDto(Tag tag){
-    TagDto tagDto = modelMapper.map(tag, TagDto.class);
-    setWeightForTag(tagDto);
-    return tagDto;
-  }
-
-  private void setWeightForTag(TagDto tagDto){
-    int countAllPosts = (int) postRepository.count();
-    int numOfOccureTagInPosts = tagToPostRepository.findAllTagsById(tagDto.getId()).size();
-    double abnormalWeight = (double) numOfOccureTagInPosts / countAllPosts;
-    if (maxWeight < abnormalWeight) {
-      maxWeight = abnormalWeight;
+    public TagResponse getAllTags() {
+        TagResponse tagResponse = new TagResponse();
+        List<TagDto> tagDtos = Mapper.convertList(tagRepository.findAll(), this::convertTagToDto);
+        tagResponse.setTags(tagDtos);
+        return tagResponse;
     }
-    double normalWeight = 1 / maxWeight * abnormalWeight;
-    tagDto.setWeight(normalWeight );
 
-  }
+    private TagDto convertTagToDto(Tag tag) {
+        TagDto tagDto = modelMapper.map(tag, TagDto.class);
+        setWeightForTag(tagDto);
+        return tagDto;
+    }
+
+    private void setWeightForTag(TagDto tagDto) {
+        int countAllPosts = (int) postRepository.count();
+        int numOfOccureTagInPosts = tagToPostRepository.findAllTagsById(tagDto.getId()).size();
+        double abnormalWeight = (double) numOfOccureTagInPosts / countAllPosts;
+        if (maxWeight < abnormalWeight) {
+            maxWeight = abnormalWeight;
+        }
+        double normalWeight = 1 / maxWeight * abnormalWeight;
+        tagDto.setWeight(normalWeight);
+
+    }
 
 }

@@ -10,20 +10,13 @@ import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.PostVoteRepository;
 import org.skillbox.devtales.service.PostService;
-import org.skillbox.devtales.util.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @RestController
 @AllArgsConstructor

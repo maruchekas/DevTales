@@ -12,6 +12,6 @@ import java.util.List;
 @Getter
 public class TagResponse {
 
-  private List<TagDto> tags;
+    private List<TagDto> tags;
 
 }
