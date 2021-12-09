@@ -25,23 +25,31 @@ public class PostService {
 
   private final int MIL_TO_SEC = 1000;
 
+
+
   private final PostRepository postRepository;
 
   private final PostVoteRepository postVoteRepository;
 
   private final ModelMapper modelMapper;
 
-  public PostResponse getAllPosts(Integer offset, Integer limit, String mode) {
+  public PostResponse getAllPosts(Integer offset, Integer limit, String sort, String mode) {
 
     PostResponse postResponse = new PostResponse();
-    Pageable paging = PageRequest.of(offset, limit, Sort.by(Sort.Direction.DESC, mode));
-    Page<Post> pageResult = postRepository.findAll(paging);
+    Pageable paging = PageRequest.of(offset, limit, Sort.by(Sort.Direction.DESC, sort));
+    Page<Post> pageResult = postRepository.findAllActiveAndAcceptedPosts(paging);
     List<PostDto> postDtos = Mapper.convertList(pageResult.getContent(), this::convertPostToDto);
 
     postResponse.setCount((int) postRepository.count());
     postResponse.setPosts(postDtos);
     return postResponse;
 
+  }
+
+  public PostResponse getActivePosts(){
+
+
+    return null;
   }
 
   public PostDto getOnePostById(int id) {

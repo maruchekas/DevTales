@@ -17,7 +17,7 @@ public class Mapper {
     }
 
     public static <R, E> List<R> convertList(List<E> list, Function<E, R> converter) {
-        return list.stream().map(e -> converter.apply(e)).collect(Collectors.toList());
+        return list.stream().map(converter).collect(Collectors.toList());
     }
 
 }
