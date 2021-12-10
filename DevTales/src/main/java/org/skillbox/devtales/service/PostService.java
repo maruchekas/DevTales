@@ -17,7 +17,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -25,30 +27,52 @@ public class PostService {
 
     private final int MIL_TO_SEC = 1000;
 
-
     private final PostRepository postRepository;
 
     private final PostVoteRepository postVoteRepository;
 
     private final ModelMapper modelMapper;
 
-    public PostResponse getAllPosts(Integer offset, Integer limit, String sort, String mode) {
+    public PostResponse getAllPosts(int offset, int limit, String mode) {
 
         PostResponse postResponse = new PostResponse();
-        Pageable paging = PageRequest.of(offset, limit, Sort.by(Sort.Direction.DESC, sort));
-        Page<Post> pageResult = postRepository.findAllActiveAndAcceptedPosts(paging);
-        List<PostDto> postDtos = Mapper.convertList(pageResult.getContent(), this::convertPostToDto);
+        Sort sort = Sort.by(Sort.Direction.DESC, "dateTime");
 
-        postResponse.setCount((int) postRepository.count());
-        postResponse.setPosts(postDtos);
+        Pageable pageable = PageRequest.of(offset, limit, sort);
+        Page<Post> pagePosts = postRepository.findAllActiveAndAcceptedPosts(pageable);
+        List<PostDto> sortedDto =
+                getSortedDto(mode, Mapper.convertList(pagePosts.getContent(), this::convertPostToDto));
+
+        postResponse.setCount(postRepository.findAll().size());
+        postResponse.setPosts(sortedDto);
         return postResponse;
-
     }
 
-    public PostResponse getActivePosts() {
+    private List<PostDto> getSortedDto(String mode, List<PostDto> postDtos) {
+        List<PostDto> sortedDto;
 
-
-        return null;
+        switch (mode) {
+            case "best":
+                sortedDto = postDtos.stream()
+                        .sorted(Comparator.comparing(PostDto::getLikeCount).reversed())
+                        .collect(Collectors.toList());
+                break;
+            case "popular":
+                sortedDto = postDtos.stream()
+                        .sorted(Comparator.comparing(PostDto::getCommentCount).reversed())
+                        .collect(Collectors.toList());
+                break;
+            case "early":
+                sortedDto = postDtos.stream()
+                        .sorted(Comparator.comparing(PostDto::getTimestamp))
+                        .collect(Collectors.toList());
+                break;
+            default:
+                sortedDto = postDtos.stream()
+                        .sorted(Comparator.comparing(PostDto::getTimestamp).reversed())
+                        .collect(Collectors.toList());
+        }
+        return sortedDto;
     }
 
     public PostDto getOnePostById(int id) {

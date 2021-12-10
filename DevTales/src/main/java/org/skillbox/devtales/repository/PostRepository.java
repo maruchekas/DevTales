@@ -7,14 +7,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
-    @Query(value = "SELECT p FROM Post p WHERE p.isActive = 1 " +
-            "AND p.moderationStatus = 'ACCEPTED' " +
-            "AND p.dateTime <= current_time()")
+    String QUERY = "SELECT p FROM Post p " +
+            "WHERE p.isActive = 1  AND p.moderationStatus = 'ACCEPTED' " +
+            "AND p.dateTime <= current_time()";
+
+    @Query(QUERY)
     Page<Post> findAllActiveAndAcceptedPosts(Pageable pageable);
 
-    Page<Post> findAll(Pageable pageable);
+    @Query(QUERY)
+    List<Post> findAll();
 
 }
