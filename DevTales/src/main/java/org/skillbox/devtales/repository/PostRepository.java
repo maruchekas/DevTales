@@ -19,6 +19,23 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query(QUERY)
     Page<Post> findAllActiveAndAcceptedPosts(Pageable pageable);
 
+    @Query("select p " +
+            "from Post p " +
+            "where p.isActive = 1 and p.moderationStatus = 'ACCEPTED' " +
+            "and p.dateTime <= current_time " +
+            "order by p.dateTime")
+    Page<Post> findRecentPostsSortedByDate(Integer offset, Integer limit, Pageable pageable);
+
+    @Query("select p, sum(pv.value) as num_likes " +
+            "from Post p " +
+            "join PostVote pv on p = pv.post " +
+            "where p.isActive = 1 and p.moderationStatus = 'ACCEPTED' " +
+            "and p.dateTime <= current_time " +
+            "group by p order by num_likes ")
+    Page<Post> findBestPostsSortedByLikeCount(Integer offset, Integer limit, Pageable pageable);
+
+
+
     @Query(QUERY)
     List<Post> findAll();
 
