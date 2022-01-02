@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import org.skillbox.devtales.model.enums.Role;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -32,10 +33,14 @@ public class User {
 
     private String code, photo;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<PostVote> postVotes;
 
-    @OneToMany(mappedBy = "user")
-    private List<Post> postList;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Post> posts;
+
+    public Role getRole(){
+        return isModerator == 1 ? Role.MODERATOR : Role.USER;
+    }
 
 }

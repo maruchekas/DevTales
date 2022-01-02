@@ -4,12 +4,7 @@ import org.skillbox.devtales.api.response.AuthResponse;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+public interface AuthService {
 
-    public AuthResponse result() {
-        AuthResponse authResponse = new AuthResponse();
-        authResponse.setResult(false);
-        return authResponse;
-    }
-
+    AuthResponse result();
 }
