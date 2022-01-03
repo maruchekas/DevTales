@@ -1,107 +1,137 @@
-package org.skillbox.devtales.service;
+package org.skillbox.devtales.service.impl;
 
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.skillbox.devtales.api.response.PostResponse;
+import org.skillbox.devtales.dto.PostCommentDto;
 import org.skillbox.devtales.dto.PostDto;
 import org.skillbox.devtales.dto.UserDto;
 import org.skillbox.devtales.model.Post;
+import org.skillbox.devtales.model.PostComment;
+import org.skillbox.devtales.model.Tag;
 import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.PostVoteRepository;
-import org.skillbox.devtales.util.Mapper;
+import org.skillbox.devtales.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
-public class PostServiceImpl {
+public class PostServiceImpl implements PostService {
 
     private final int MIL_TO_SEC = 1000;
 
     private final PostRepository postRepository;
-
     private final PostVoteRepository postVoteRepository;
 
-    private final ModelMapper modelMapper;
-
-    public PostResponse getAllPosts(int offset, int limit, String mode) {
-
+    public PostResponse getPosts(int offset, int limit, String mode) {
         PostResponse postResponse = new PostResponse();
-        Sort sort = Sort.by(Sort.Direction.DESC, "dateTime");
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        Page<Post> pagePosts;
 
-        Pageable pageable = PageRequest.of(offset / limit, limit, sort);
-        Page<Post> pagePosts = postRepository.findAllActiveAndAcceptedPosts(pageable);
-        List<PostDto> sortedDto =
-                getSortedDto(mode, Mapper.convertList(pagePosts.getContent(), this::convertPostToDto));
+        switch (mode) {
+            case "popular" -> pagePosts = postRepository.findPopularPostsSortedByCommentsCount(pageable);
+            case "best" -> pagePosts = postRepository.findBestPostsSortedByLikeCount(pageable);
+            case "early" -> pagePosts = postRepository.findNewPostsSortedByDate(pageable);
+            default -> pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
+        }
 
-        postResponse.setCount(postRepository.findAll().size());
-        postResponse.setPosts(sortedDto);
+        List<PostDto> postsDto = new ArrayList<>();
+
+        for (Post post : pagePosts
+        ) {
+            postsDto.add(getPostData(post));
+        }
+        postResponse.setCount((int) pagePosts.getTotalElements());
+        postResponse.setPosts(postsDto);
         return postResponse;
     }
 
-    private List<PostDto> getSortedDto(String mode, List<PostDto> postDtos) {
-        List<PostDto> sortedDto;
+    public PostDto getPostById(int id) {
+        Post post = postRepository.getById(id);
+        PostDto postView = getPostData(post);
+        postView.setAnnounce(null);
+        postView.setComments(getCommentsForPost(post));
+        postView.setTags(getTagsForPost(post));
 
-        switch (mode) {
-            case "best":
-                sortedDto = postDtos.stream()
-                        .sorted(Comparator.comparing(PostDto::getLikeCount).reversed())
-                        .collect(Collectors.toList());
-                break;
-            case "popular":
-                sortedDto = postDtos.stream()
-                        .sorted(Comparator.comparing(PostDto::getCommentCount).reversed())
-                        .collect(Collectors.toList());
-                break;
-            case "early":
-                sortedDto = postDtos.stream()
-                        .sorted(Comparator.comparing(PostDto::getTimestamp))
-                        .collect(Collectors.toList());
-                break;
-            default:
-                sortedDto = postDtos.stream()
-                        .sorted(Comparator.comparing(PostDto::getTimestamp).reversed())
-                        .collect(Collectors.toList());
-        }
-        return sortedDto;
+        return postView;
     }
 
-    public PostDto getOnePostById(int id) {
+    private PostDto getPostData(Post post) {
+        PostDto postData = new PostDto();
+        postData.setId(post.getId());
+        postData.setTimestamp(Timestamp.valueOf(post.getDateTime()).getTime() / MIL_TO_SEC);
+        postData.setIsActive(post.getIsActive());
+        postData.setUser(getUserData(post.getUser()));
+        postData.getUser().setPhoto(null);
+        postData.setTitle(post.getTitle());
+        postData.setText(post.getText());
+        postData.setAnnounce(getAnnounce(post.getText()));
+        postData.setCommentCount(post.getComments().size());
+        postData.setLikeCount(getLikeCount(post));
+        postData.setDislikeCount(getDislikeCount(post));
+        postData.setViewCount(post.getViewCount());
 
-        return convertPostToDto(postRepository.getById(id));
+        return postData;
     }
 
-    private PostDto convertPostToDto(Post post) {
-        PostDto postDto = modelMapper.map(post, PostDto.class);
-        if (post.getText().length() > 150) {
-            String announce = post.getText().substring(0, 150) + "...";
-            postDto.setAnnounce(announce);
+    private String getAnnounce(String text) {
+        String announce;
+        if (text.length() > 150) {
+            announce = text.substring(0, 150) + "...";
         } else {
-            postDto.setAnnounce(post.getText());
+            announce = text;
         }
-
-        postDto.setTimestamp(Timestamp.valueOf(post.getDateTime()).getTime() / MIL_TO_SEC);
-        postDto.setViewCount(postDto.getViewCount());
-        postDto.setCommentCount(post.getComments().size());
-        postDto.setLikeCount(getLikeCount(post));
-        postDto.setDislikeCount(getDislikeCount(post));
-        postDto.setUser(convertUserToDto(post.getUser()));
-
-        return postDto;
+        return announce;
     }
 
-    private UserDto convertUserToDto(User user) {
-        return modelMapper.map(user, UserDto.class);
+    private List<PostCommentDto> getCommentsForPost(Post post) {
+        List<PostComment> comments = post.getComments();
+        List<PostCommentDto> commentsDto = new ArrayList<>();
+
+        for (PostComment comment : comments
+        ) {
+            commentsDto.add(getCommentData(comment));
+        }
+
+        return commentsDto;
+    }
+
+    private List<String> getTagsForPost(Post post) {
+        List<Tag> tags = post.getTags();
+        List<String> tagsName = new ArrayList<>();
+
+        for (Tag tag : tags
+        ) {
+            tagsName.add(tag.getName());
+        }
+
+        return tagsName;
+    }
+
+    private PostCommentDto getCommentData(PostComment comment) {
+        PostCommentDto commentDto = new PostCommentDto();
+        commentDto.setId(comment.getId());
+        commentDto.setTimestamp(Timestamp.valueOf(comment.getTime()).getTime() / MIL_TO_SEC);
+        commentDto.setText(comment.getText());
+        commentDto.setUser(getUserData(comment.getUser()));
+
+        return commentDto;
+    }
+
+    private UserDto getUserData(User user) {
+        UserDto userData = new UserDto();
+        userData.setId(user.getId());
+        userData.setName(user.getName());
+        userData.setPhoto(user.getPhoto());
+
+        return userData;
     }
 
     private int getLikeCount(Post post) {

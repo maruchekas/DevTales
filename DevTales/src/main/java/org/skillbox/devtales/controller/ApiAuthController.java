@@ -34,8 +34,8 @@ public class ApiAuthController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<AuthResponse> check(Principal principal){
-        if (principal == null){
+    public ResponseEntity<AuthResponse> check(Principal principal) {
+        if (principal == null) {
             return ResponseEntity.ok(new AuthResponse());
         }
         return ResponseEntity.ok(getAuthResponse(principal.getName()));
@@ -53,14 +53,14 @@ public class ApiAuthController {
 
     @GetMapping("/logout")
     @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<AuthResponse> logout(){
+    public ResponseEntity<AuthResponse> logout() {
         AuthResponse authResponse = new AuthResponse();
         authResponse.setResult(true);
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok(authResponse);
     }
 
-    private AuthResponse getAuthResponse(String userName){
+    private AuthResponse getAuthResponse(String userName) {
         org.skillbox.devtales.model.User authUser =
                 userRepository.findByEmail(userName)
                         .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));

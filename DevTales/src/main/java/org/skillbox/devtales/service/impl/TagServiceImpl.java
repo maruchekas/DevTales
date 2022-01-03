@@ -1,4 +1,4 @@
-package org.skillbox.devtales.service;
+package org.skillbox.devtales.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -8,6 +8,7 @@ import org.skillbox.devtales.model.Tag;
 import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.TagRepository;
 import org.skillbox.devtales.repository.TagToPostRepository;
+import org.skillbox.devtales.service.TagService;
 import org.skillbox.devtales.util.Mapper;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class TagServiceImpl implements TagService{
+public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
 

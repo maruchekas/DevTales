@@ -1,14 +1,19 @@
 package org.skillbox.devtales.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Data
 @RequiredArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PostDto {
 
     private int id;
     private long timestamp;
+    private boolean isActive;
     private UserDto user;
     private String title;
     private String announce;
@@ -17,5 +22,11 @@ public class PostDto {
     private int likeCount;
     private int dislikeCount;
     private int viewCount;
+    List<PostCommentDto> comments;
+    List<String> tags;
 
+
+    public void setIsActive(int isActive) {
+        this.isActive = isActive == 1;
+    }
 }

@@ -5,7 +5,7 @@ import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.skillbox.devtales.api.response.TagResponse;
 import org.skillbox.devtales.service.SettingsService;
-import org.skillbox.devtales.service.TagService;
+import org.skillbox.devtales.service.impl.TagServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +19,7 @@ public class ApiGeneralController {
 
     private final InitResponse initResponse;
     private final SettingsService settingsService;
-    private final TagService tagService;
+    private final TagServiceImpl tagServiceImpl;
 
     @GetMapping("/init")
     private InitResponse init() {
@@ -33,7 +33,7 @@ public class ApiGeneralController {
 
     @GetMapping("/tag")
     private ResponseEntity<TagResponse> tag() {
-        return new ResponseEntity<>(tagService.getAllTags(), HttpStatus.OK);
+        return new ResponseEntity<>(tagServiceImpl.getAllTags(), HttpStatus.OK);
     }
 
 }

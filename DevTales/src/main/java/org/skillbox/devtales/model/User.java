@@ -39,7 +39,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> posts;
 
-    public Role getRole(){
+    public Role getRole() {
         return isModerator == 1 ? Role.MODERATOR : Role.USER;
     }
 

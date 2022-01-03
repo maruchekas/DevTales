@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TagDto {
-
-    private int id;
-    private String name;
-    private double weight;
+public class PostCommentDto {
+    int id;
+    long timestamp;
+    String text;
+    UserDto user;
 }
