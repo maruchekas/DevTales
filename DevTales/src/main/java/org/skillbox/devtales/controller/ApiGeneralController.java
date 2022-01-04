@@ -1,10 +1,12 @@
 package org.skillbox.devtales.controller;
 
 import lombok.AllArgsConstructor;
+import org.skillbox.devtales.api.response.CalendarResponse;
 import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.skillbox.devtales.api.response.TagResponse;
 import org.skillbox.devtales.service.SettingsService;
+import org.skillbox.devtales.service.impl.CalendarServiceImpl;
 import org.skillbox.devtales.service.impl.TagServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,20 +22,27 @@ public class ApiGeneralController {
     private final InitResponse initResponse;
     private final SettingsService settingsService;
     private final TagServiceImpl tagServiceImpl;
+    private final CalendarServiceImpl calendarService;
 
     @GetMapping("/init")
-    private InitResponse init() {
+    public InitResponse init() {
         return initResponse;
     }
 
     @GetMapping("/settings")
-    private ResponseEntity<SettingsResponse> settings() {
+    public ResponseEntity<SettingsResponse> settings() {
         return new ResponseEntity<>(settingsService.getGlobalSettings(), HttpStatus.OK);
     }
 
     @GetMapping("/tag")
-    private ResponseEntity<TagResponse> tag() {
+    public ResponseEntity<TagResponse> tag() {
         return new ResponseEntity<>(tagServiceImpl.getAllTags(), HttpStatus.OK);
+    }
+
+    @GetMapping("/calendar")
+    public ResponseEntity<CalendarResponse> postCalendar(int year) {
+
+        return new ResponseEntity<>(calendarService.getPostsForCalendar(year), HttpStatus.OK);
     }
 
 }

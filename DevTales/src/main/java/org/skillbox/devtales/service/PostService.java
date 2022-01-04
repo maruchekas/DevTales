@@ -11,6 +11,8 @@ public interface PostService {
 
     PostDto getPostById(int id);
 
+    PostResponse searchPostsByText(int offset, int limit, String text);
+
 //    PostResponse getRecentPostsSortedByDate();
 //
 //    PostResponse getPopularPostsSortedByComment();

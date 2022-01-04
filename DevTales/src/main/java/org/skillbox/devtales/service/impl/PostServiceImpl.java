@@ -26,6 +26,7 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final int MIL_TO_SEC = 1000;
+    private final int ANNOUNCE_LENGTH_LIMIT = 150;
 
     private final PostRepository postRepository;
     private final PostVoteRepository postVoteRepository;
@@ -63,6 +64,68 @@ public class PostServiceImpl implements PostService {
         return postView;
     }
 
+    @Override
+    public PostResponse searchPostsByText(int offset, int limit, String text) {
+        PostResponse postResponse = new PostResponse();
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        Page<Post> pagePosts;
+
+        if (text.trim().equals("")){
+            pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
+        } else pagePosts = postRepository.findPostsByText(text, pageable);
+
+        List<PostDto> postsDto = new ArrayList<>();
+
+        for (Post post : pagePosts
+        ) {
+            postsDto.add(getPostData(post));
+        }
+        postResponse.setCount((int) pagePosts.getTotalElements());
+        postResponse.setPosts(postsDto);
+
+        return postResponse;
+    }
+
+    public PostResponse searchPostsByTag(int offset, int limit, String tag) {
+        PostResponse postResponse = new PostResponse();
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        Page<Post> pagePosts;
+
+        if (tag.trim().equals("")) {
+            pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
+        } else pagePosts = postRepository.findPostsByTags(tag, pageable);
+
+        List<PostDto> postsDto = new ArrayList<>();
+
+        for (Post post : pagePosts
+        ) {
+            postsDto.add(getPostData(post));
+        }
+        postResponse.setCount((int) pagePosts.getTotalElements());
+        postResponse.setPosts(postsDto);
+
+        return postResponse;
+    }
+
+    public PostResponse searchPostsByDate(int offset, int limit, String date) {
+        PostResponse postResponse = new PostResponse();
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        Page<Post> pagePosts;
+
+        pagePosts = postRepository.findPostsByDate(date, pageable);
+        List<PostDto> postsDto = new ArrayList<>();
+
+        for (Post post : pagePosts
+        ) {
+            postsDto.add(getPostData(post));
+        }
+        postResponse.setCount((int) pagePosts.getTotalElements());
+        postResponse.setPosts(postsDto);
+
+
+        return postResponse;
+    }
+
     private PostDto getPostData(Post post) {
         PostDto postData = new PostDto();
         postData.setId(post.getId());
@@ -83,8 +146,8 @@ public class PostServiceImpl implements PostService {
 
     private String getAnnounce(String text) {
         String announce;
-        if (text.length() > 150) {
-            announce = text.substring(0, 150) + "...";
+        if (text.length() > ANNOUNCE_LENGTH_LIMIT) {
+            announce = text.substring(0, ANNOUNCE_LENGTH_LIMIT) + "...";
         } else {
             announce = text;
         }
