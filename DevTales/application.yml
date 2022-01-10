@@ -9,6 +9,16 @@ spring:
     show-sql: true
   flyway:
     enabled: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+captcha:
+  width-origin: 150
+  width-new: 100
+  height-origin: 50
+  height-new: 35
+  image: data:captchaImage/png;base64,
+  lifespanBySec: 0
 
 
 blog:

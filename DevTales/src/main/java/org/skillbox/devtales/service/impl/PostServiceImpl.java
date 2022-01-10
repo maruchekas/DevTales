@@ -5,18 +5,21 @@ import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostCommentDto;
 import org.skillbox.devtales.dto.PostDto;
 import org.skillbox.devtales.dto.UserDto;
+import org.skillbox.devtales.exception.PostNotFoundException;
 import org.skillbox.devtales.model.Post;
 import org.skillbox.devtales.model.PostComment;
 import org.skillbox.devtales.model.Tag;
 import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.PostVoteRepository;
+import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +33,9 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final PostVoteRepository postVoteRepository;
+    private final UserRepository userRepository;
 
     public PostResponse getPosts(int offset, int limit, String mode) {
-        PostResponse postResponse = new PostResponse();
         Pageable pageable = PageRequest.of(offset / limit, limit);
         Page<Post> pagePosts;
 
@@ -43,19 +46,19 @@ public class PostServiceImpl implements PostService {
             default -> pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
         }
 
-        List<PostDto> postsDto = new ArrayList<>();
-
-        for (Post post : pagePosts
-        ) {
-            postsDto.add(getPostData(post));
-        }
-        postResponse.setCount((int) pagePosts.getTotalElements());
-        postResponse.setPosts(postsDto);
-        return postResponse;
+        return getPostResponseFromPostsPage(pagePosts);
     }
 
-    public PostDto getPostById(int id) {
-        Post post = postRepository.getById(id);
+    public PostDto getPostById(int id, Principal principal) {
+        Post post = postRepository.findPostById(id).orElseThrow(() ->
+                new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"));
+        if (principal == null ||
+                !(userRepository.findByEmail(principal.getName()).get().getIsModerator() == 1
+                        || userRepository.findByEmail(principal.getName()).get().getId() == post.getUser().getId())) {
+            post.setViewCount(post.getViewCount() + 1);
+            postRepository.save(post);
+        }
+
         PostDto postView = getPostData(post);
         postView.setAnnounce(null);
         postView.setComments(getCommentsForPost(post));
@@ -66,28 +69,17 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse searchPostsByText(int offset, int limit, String text) {
-        PostResponse postResponse = new PostResponse();
         Pageable pageable = PageRequest.of(offset / limit, limit);
         Page<Post> pagePosts;
 
-        if (text.trim().equals("")){
+        if (text.trim().equals("")) {
             pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
         } else pagePosts = postRepository.findPostsByText(text, pageable);
 
-        List<PostDto> postsDto = new ArrayList<>();
-
-        for (Post post : pagePosts
-        ) {
-            postsDto.add(getPostData(post));
-        }
-        postResponse.setCount((int) pagePosts.getTotalElements());
-        postResponse.setPosts(postsDto);
-
-        return postResponse;
+        return getPostResponseFromPostsPage(pagePosts);
     }
 
     public PostResponse searchPostsByTag(int offset, int limit, String tag) {
-        PostResponse postResponse = new PostResponse();
         Pageable pageable = PageRequest.of(offset / limit, limit);
         Page<Post> pagePosts;
 
@@ -95,35 +87,25 @@ public class PostServiceImpl implements PostService {
             pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
         } else pagePosts = postRepository.findPostsByTags(tag, pageable);
 
-        List<PostDto> postsDto = new ArrayList<>();
-
-        for (Post post : pagePosts
-        ) {
-            postsDto.add(getPostData(post));
-        }
-        postResponse.setCount((int) pagePosts.getTotalElements());
-        postResponse.setPosts(postsDto);
-
-        return postResponse;
+        return getPostResponseFromPostsPage(pagePosts);
     }
 
     public PostResponse searchPostsByDate(int offset, int limit, String date) {
-        PostResponse postResponse = new PostResponse();
         Pageable pageable = PageRequest.of(offset / limit, limit);
         Page<Post> pagePosts;
 
         pagePosts = postRepository.findPostsByDate(date, pageable);
-        List<PostDto> postsDto = new ArrayList<>();
 
-        for (Post post : pagePosts
-        ) {
-            postsDto.add(getPostData(post));
-        }
-        postResponse.setCount((int) pagePosts.getTotalElements());
-        postResponse.setPosts(postsDto);
+        return getPostResponseFromPostsPage(pagePosts);
+    }
 
+    public PostResponse getPostsForModeration(int offset, int limit, String status) {
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        Page<Post> pagePosts;
 
-        return postResponse;
+        pagePosts = postRepository.findNewPostsForModeration(status, pageable);
+
+        return getPostResponseFromPostsPage(pagePosts);
     }
 
     private PostDto getPostData(Post post) {
@@ -142,6 +124,20 @@ public class PostServiceImpl implements PostService {
         postData.setViewCount(post.getViewCount());
 
         return postData;
+    }
+
+    private PostResponse getPostResponseFromPostsPage(Page<Post> pagePosts) {
+        PostResponse postResponse = new PostResponse();
+        List<PostDto> postsDto = new ArrayList<>();
+
+        for (Post post : pagePosts
+        ) {
+            postsDto.add(getPostData(post));
+        }
+        postResponse.setCount((int) pagePosts.getTotalElements());
+        postResponse.setPosts(postsDto);
+
+        return postResponse;
     }
 
     private String getAnnounce(String text) {

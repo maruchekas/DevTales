@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
@@ -17,6 +18,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "from Post p " +
             "where p.isActive = 1 and p.moderationStatus = 'ACCEPTED' " +
             "and p.dateTime <= current_time ";
+
+    @Query(HEAD_QUERY + " and p.id = :id")
+    Optional<Post> findPostById(int id);
 
     @Query(HEAD_QUERY)
     Page<Post> findAllActiveAndAcceptedPosts(Pageable pageable);
@@ -29,9 +33,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "order by p.dateTime asc ")
     Page<Post> findNewPostsSortedByDate(Pageable pageable);
 
-    @Query("select p from Post p " +
-            "where p.isActive = 1 and p.moderationStatus = 'ACCEPTED' " +
-            "and p.dateTime <= current_time " +
+    @Query(HEAD_QUERY +
             "group by p " +
             "order by p.postVotes.size desc ")
     Page<Post> findBestPostsSortedByLikeCount(Pageable pageable);
@@ -54,9 +56,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "group by p order by p.comments.size desc")
     Page<Post> findPopularPostsSortedByCommentsCount(Pageable pageable);
 
-    @Query("select p from Post p " +
-            "where p.isActive = 1 and p.moderationStatus = 'ACCEPTED' " +
-            "and p.dateTime <= current_time " +
+    @Query(HEAD_QUERY +
             "and (p.title like '%'||:text||'%' or p.text like '%'||:text||'%') " +
             "group by p " +
             "order by p.dateTime desc ")
@@ -77,6 +77,18 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "and p.date_time <= current_time " +
             "and date_format(p.date_time, '%Y-%m-%d') = :date ", nativeQuery = true)
     Page<Post> findPostsByDate(String date, Pageable pageable);
+
+    @Query(value = "select * " +
+            "from posts p " +
+            "where p.is_active = 1 " +
+            "and p.moderation_status = :status " +
+            "group by p.id " +
+            "order by p.date_time ", nativeQuery = true)
+    Page<Post> findNewPostsForModeration(String status, Pageable pageable);
+
+    @Query(value = "select count(p) from Post p " +
+            "where p.isActive = 1 and p.moderationStatus = 'NEW' ")
+    int findCountPostsForModeration();
 
     @Query(value = "select date_format(p.date_time, '%Y') as p_year " +
             "from posts p " +

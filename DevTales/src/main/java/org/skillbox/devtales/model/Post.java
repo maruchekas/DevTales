@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.Accessors;
 import org.skillbox.devtales.model.enums.ModerationStatus;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Accessors(chain = true)
 @Table(name = "posts")
 public class Post {
 
