@@ -10,6 +10,6 @@ public class AuthResponse {
 
     private boolean result;
     @JsonProperty("user")
-    private AuthUserResponse authUserResponse;
+    private UserDto userDto;
 
 }

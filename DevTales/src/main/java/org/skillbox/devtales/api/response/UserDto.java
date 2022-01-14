@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthUserResponse {
+public class UserDto {
 
     private int id;
     private String name;

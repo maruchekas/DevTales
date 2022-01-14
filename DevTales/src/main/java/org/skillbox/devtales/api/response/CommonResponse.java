@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserResponse {
+public class CommonResponse {
 
     private boolean result;
     private Map<String, String> errors;

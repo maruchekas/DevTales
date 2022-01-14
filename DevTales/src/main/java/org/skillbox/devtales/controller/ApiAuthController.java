@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.skillbox.devtales.api.request.AuthRequest;
 import org.skillbox.devtales.api.request.RegisterRequest;
 import org.skillbox.devtales.api.response.AuthResponse;
-import org.skillbox.devtales.api.response.UserResponse;
+import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.exception.DuplicateUserEmailException;
 import org.skillbox.devtales.service.AuthUserService;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class ApiAuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest registerRequest) throws DuplicateUserEmailException {
+    public ResponseEntity<CommonResponse> register(@RequestBody RegisterRequest registerRequest) throws DuplicateUserEmailException {
         return new ResponseEntity<>(authUserService.register(registerRequest), HttpStatus.OK);
     }
 

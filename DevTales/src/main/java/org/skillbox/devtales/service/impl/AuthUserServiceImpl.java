@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.skillbox.devtales.api.request.AuthRequest;
 import org.skillbox.devtales.api.request.RegisterRequest;
 import org.skillbox.devtales.api.response.AuthResponse;
-import org.skillbox.devtales.api.response.AuthUserResponse;
-import org.skillbox.devtales.api.response.UserResponse;
+import org.skillbox.devtales.api.response.UserDto;
+import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.exception.DuplicateUserEmailException;
 import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.repository.CaptchaRepository;
 import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.service.AuthUserService;
+import org.skillbox.devtales.util.UserAvatarUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,9 +34,9 @@ public class AuthUserServiceImpl implements AuthUserService {
     private final CaptchaRepository captchaRepository;
     private final PostRepository postRepository;
 
-    public UserResponse register(RegisterRequest registerRequest) throws DuplicateUserEmailException {
+    public CommonResponse register(RegisterRequest registerRequest) throws DuplicateUserEmailException {
         PasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        UserResponse response = new UserResponse();
+        CommonResponse response = new CommonResponse();
         Map<String, String> errors = validateUserRegisterRequest(registerRequest);
 
         if (errors.size() > 0) {
@@ -51,6 +52,7 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .setEmail(registerRequest.getEmail())
                 .setRegTime(LocalDateTime.now())
                 .setIsModerator(0)
+                .setPhoto(UserAvatarUtil.createDefaultRoboticAvatar(registerRequest.getName()))
                 .setCode(String.valueOf(registerRequest.getCaptchaSecret()));
 
         userRepository.save(user);
@@ -82,17 +84,17 @@ public class AuthUserServiceImpl implements AuthUserService {
                 userRepository.findByEmail(userName)
                         .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
 
-        AuthUserResponse authUserResponse = new AuthUserResponse();
-        authUserResponse.setId(authUser.getId());
-        authUserResponse.setEmail(authUser.getEmail());
-        authUserResponse.setName(authUser.getName());
-        authUserResponse.setPhoto(authUser.getPhoto());
-        authUserResponse.setModeration(authUser.getIsModerator() == 1);
-        authUserResponse.setModerationCount(getNumPostsForModeration(authUser));
+        UserDto userDto = new UserDto();
+        userDto.setId(authUser.getId());
+        userDto.setEmail(authUser.getEmail());
+        userDto.setName(authUser.getName());
+        userDto.setPhoto(authUser.getPhoto());
+        userDto.setModeration(authUser.getIsModerator() == 1);
+        userDto.setModerationCount(getNumPostsForModeration(authUser));
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setResult(true);
-        authResponse.setAuthUserResponse(authUserResponse);
+        authResponse.setUserDto(userDto);
 
         return authResponse;
     }

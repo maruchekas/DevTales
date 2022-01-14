@@ -19,6 +19,9 @@ captcha:
   height-new: 35
   image: data:captchaImage/png;base64,
   lifespanBySec: 0
+avatar:
+  basic_url: https://robohash.org/
+  avatar_config: .png?size=360x360&set=set
 
 
 blog:
