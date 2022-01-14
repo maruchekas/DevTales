@@ -10,6 +10,7 @@ import org.skillbox.devtales.model.enums.ModerationStatus;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -58,8 +59,16 @@ public class Post {
 
     @ManyToMany
     @JoinTable(name = "tag2post",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private List<Tag> tags;
+            joinColumns = @JoinColumn(name = "post_id", referencedColumnName = "Id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
+    private Set<Tag> tags = new java.util.LinkedHashSet<>();
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
 
 }

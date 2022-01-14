@@ -1,6 +1,9 @@
 package org.skillbox.devtales.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.skillbox.devtales.api.request.PostRequest;
+import org.skillbox.devtales.api.request.RegisterRequest;
+import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostCommentDto;
 import org.skillbox.devtales.dto.PostDto;
@@ -10,19 +13,23 @@ import org.skillbox.devtales.model.Post;
 import org.skillbox.devtales.model.PostComment;
 import org.skillbox.devtales.model.Tag;
 import org.skillbox.devtales.model.User;
+import org.skillbox.devtales.model.enums.ModerationStatus;
 import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.PostVoteRepository;
+import org.skillbox.devtales.repository.TagRepository;
 import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.service.PostService;
+import org.skillbox.devtales.util.HtmlToSimpleTextUtil;
+import org.skillbox.devtales.util.TimeParser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Component
 @AllArgsConstructor
@@ -34,6 +41,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostVoteRepository postVoteRepository;
     private final UserRepository userRepository;
+    private final TagRepository tagRepository;
 
     public PostResponse getPosts(int offset, int limit, String mode) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
@@ -50,7 +58,9 @@ public class PostServiceImpl implements PostService {
     }
 
     public PostDto getPostById(int id, Principal principal) {
-        Post post = postRepository.findPostById(id).orElseThrow(() ->
+        Post post = principal == null ? postRepository.findPostById(id).orElseThrow(() ->
+                new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"))
+                : postRepository.findAnyPostById(id).orElseThrow(() ->
                 new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"));
         if (principal == null ||
                 !(userRepository.findByEmail(principal.getName()).get().getIsModerator() == 1
@@ -62,7 +72,7 @@ public class PostServiceImpl implements PostService {
         PostDto postView = getPostData(post);
         postView.setAnnounce(null);
         postView.setComments(getCommentsForPost(post));
-        postView.setTags(getTagsForPost(post));
+        postView.setTags(getTagsFromPost(post));
 
         return postView;
     }
@@ -108,20 +118,97 @@ public class PostServiceImpl implements PostService {
         return getPostResponseFromPostsPage(pagePosts);
     }
 
+    @Override
+    public PostResponse getMyPosts(int offset, int limit, String status, Principal principal) {
+        Pageable pageable = PageRequest.of(offset / limit, limit);
+        Page<Post> pagePosts;
+        String inStatus;
+        byte isActive;
+        User user = userRepository.findByEmail(principal.getName()).orElseThrow(
+                () -> new UsernameNotFoundException("Пользователь не существует или заблокирован"));
+
+        switch (status) {
+            case "pending" -> {
+                inStatus = "NEW";
+                isActive = 1;
+            }
+            case "declined" -> {
+                inStatus = "DECLINED";
+                isActive = 1;
+            }
+            case "published" -> {
+                inStatus = "ACCEPTED";
+                isActive = 1;
+            }
+            default -> {
+                inStatus = "NEW";
+                isActive = 0;
+            }
+        }
+        pagePosts = postRepository.findMyPosts(inStatus, user.getId(), isActive, pageable);
+
+        return getPostResponseFromPostsPage(pagePosts);
+    }
+
+    public CommonResponse addPost(PostRequest postRequest, Principal principal) {
+
+        CommonResponse commonResponse = new CommonResponse();
+        Map<String, String> errors = validateAddPostRequest(postRequest);
+
+        if (errors.size() > 0) {
+            commonResponse.setResult(false);
+            commonResponse.setErrors(errors);
+
+            return commonResponse;
+        }
+
+        Set<Tag> tags = addTagsToPost(postRequest.getTags());
+        commonResponse.setResult(true);
+        Post post = new Post()
+                .setTitle(postRequest.getTitle())
+                .setText(postRequest.getText())
+                .setIsActive(postRequest.getActive())
+                .setDateTime(TimeParser.getLocalDateTime(postRequest.getTimestamp()))
+                .setUser(userRepository.findByEmail(principal.getName()).orElseThrow())
+                .setViewCount(0)
+                .setModerationStatus(ModerationStatus.NEW);
+                post.setTags(tags);
+        postRepository.save(post);
+
+        return commonResponse;
+    }
+
+    private Map<String, String> validateAddPostRequest(PostRequest postRequest) {
+        final String title = postRequest.getTitle();
+        final String text = postRequest.getText();
+
+        Map<String, String> errors = new HashMap<>();
+
+        if (title.length() < 3) {
+            errors.put("title", "Заголовок не установлен");
+        }
+
+        if (text.length() < 50) {
+            errors.put("text", "Текст публикации слишком короткий");
+        }
+
+        return errors;
+    }
+
     private PostDto getPostData(Post post) {
-        PostDto postData = new PostDto();
-        postData.setId(post.getId());
-        postData.setTimestamp(Timestamp.valueOf(post.getDateTime()).getTime() / MIL_TO_SEC);
+        PostDto postData = new PostDto()
+                .setId(post.getId())
+                .setTimestamp(Timestamp.valueOf(post.getDateTime()).getTime() / MIL_TO_SEC)
+                .setUser(getUserDataForPost(post.getUser()))
+                .setTitle(post.getTitle())
+                .setText(post.getText())
+                .setAnnounce(getAnnounce(post.getText()))
+                .setCommentCount(post.getComments().size())
+                .setLikeCount(getLikeCount(post))
+                .setDislikeCount(getDislikeCount(post))
+                .setViewCount(post.getViewCount());
+
         postData.setIsActive(post.getIsActive());
-        postData.setUser(getUserData(post.getUser()));
-        postData.getUser().setPhoto(null);
-        postData.setTitle(post.getTitle());
-        postData.setText(post.getText());
-        postData.setAnnounce(getAnnounce(post.getText()));
-        postData.setCommentCount(post.getComments().size());
-        postData.setLikeCount(getLikeCount(post));
-        postData.setDislikeCount(getDislikeCount(post));
-        postData.setViewCount(post.getViewCount());
 
         return postData;
     }
@@ -141,13 +228,9 @@ public class PostServiceImpl implements PostService {
     }
 
     private String getAnnounce(String text) {
-        String announce;
-        if (text.length() > ANNOUNCE_LENGTH_LIMIT) {
-            announce = text.substring(0, ANNOUNCE_LENGTH_LIMIT) + "...";
-        } else {
-            announce = text;
-        }
-        return announce;
+        return text.length() > ANNOUNCE_LENGTH_LIMIT ?
+                HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, ANNOUNCE_LENGTH_LIMIT) + "..."
+                : HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, text.length());
     }
 
     private List<PostCommentDto> getCommentsForPost(Post post) {
@@ -162,9 +245,27 @@ public class PostServiceImpl implements PostService {
         return commentsDto;
     }
 
-    private List<String> getTagsForPost(Post post) {
-        List<Tag> tags = post.getTags();
-        List<String> tagsName = new ArrayList<>();
+    private Set<Tag> addTagsToPost(String[] tagsString) {
+        Set<Tag> tags = new HashSet<>();
+        for (String tagFromNewPost : tagsString
+        ) {
+            Tag tag = tagRepository.findByName(tagFromNewPost);
+            if (tag != null) {
+                tags.add(tag);
+            } else {
+                Tag newTag = new Tag();
+                newTag.setName(tagFromNewPost);
+                tagRepository.save(newTag);
+                tags.add(newTag);
+            }
+        }
+
+        return tags;
+    }
+
+    private Set<String> getTagsFromPost(Post post) {
+        Set<Tag> tags = post.getTags();
+        Set<String> tagsName = new HashSet<>();
 
         for (Tag tag : tags
         ) {
@@ -175,22 +276,27 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostCommentDto getCommentData(PostComment comment) {
-        PostCommentDto commentDto = new PostCommentDto();
-        commentDto.setId(comment.getId());
-        commentDto.setTimestamp(Timestamp.valueOf(comment.getTime()).getTime() / MIL_TO_SEC);
-        commentDto.setText(comment.getText());
-        commentDto.setUser(getUserData(comment.getUser()));
 
-        return commentDto;
+        return new PostCommentDto()
+                .setId(comment.getId())
+                .setTimestamp(Timestamp.valueOf(comment.getTime()).getTime() / MIL_TO_SEC)
+                .setText(comment.getText())
+                .setUser(getUserDataForComment(comment.getUser()));
     }
 
-    private UserDto getUserData(User user) {
-        UserDto userData = new UserDto();
-        userData.setId(user.getId());
-        userData.setName(user.getName());
-        userData.setPhoto(user.getPhoto());
+    private UserDto getUserDataForComment(User user) {
 
-        return userData;
+        return new UserDto()
+                .setId(user.getId())
+                .setName(user.getName())
+                .setPhoto(user.getPhoto());
+    }
+
+    private UserDto getUserDataForPost(User user) {
+
+        return new UserDto()
+                .setId(user.getId())
+                .setName(user.getName());
     }
 
     private int getLikeCount(Post post) {

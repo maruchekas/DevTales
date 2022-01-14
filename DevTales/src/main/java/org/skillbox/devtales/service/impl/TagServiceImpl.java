@@ -13,24 +13,21 @@ import org.skillbox.devtales.util.Mapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
-
     private final PostRepository postRepository;
-
     private final TagToPostRepository tagToPostRepository;
-
     private final ModelMapper modelMapper;
-
     private static double maxWeight;
 
     public TagResponse getAllTags() {
         TagResponse tagResponse = new TagResponse();
-        List<TagDto> tagDtos = Mapper.convertList(tagRepository.findAll(), this::convertTagToDto);
+        Set<TagDto> tagDtos = Mapper.convertSet(tagRepository.findAllTags(), this::convertTagToDto);
         tagResponse.setTags(tagDtos);
         return tagResponse;
     }

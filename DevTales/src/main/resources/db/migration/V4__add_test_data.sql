@@ -1,17 +1,17 @@
 INSERT INTO users (code, email, is_moderator, name, password, photo, reg_time)
-VALUES ('code121220', 'mailone@example.ru', 0, 'Egor Petrov', 'hashword121220', 'https://clck.ru/YvTa9',
+VALUES ('LSACSNO', 'mailone@example.ru', 0, 'Egor Petrov', '$2a$12$7kSleRW1Lnv24ygiuZ5yB.3IUczHQbt1wBxpz02HJbLBDDoIySAKi', 'https://robohash.org/mailme@example.ru.png?size=350x350&set=set1',
         current_time()),
-       ('code121221', 'mailtwo@example.ru', 0, 'Сергей Хмуров', 'hashword121221', 'https://clck.ru/YvTcZ',
+       ('Bxpz02HJbL', 'mailtwo@example.ru', 0, 'Сергей Хмуров', '$2a$12$nvklXKkTOE.MLupPLIScbeQ.OIJI4X3Rvszdhoii3Ogvsi9O6r3me', 'https://robohash.org/nesergeychmurov?size=350x350&set=set2',
         current_time()),
-       ('code121222', 'mailthree@example.ru', 1, 'Алексей Прохоров', 'hashword121222', 'https://clck.ru/YvTgK',
+       ('OIJI4X3Rv', 'mailthree@example.ru', 1, 'Алексей Прохоров', '$2a$12$Ic9HK.72/LSACSNOo3.0k.0Cne0h.mzaSm0ziiZEPotQm.CfHEkNm', 'https://robohash.org/nesergeychmurov?size=350x350&set=set2',
         current_time()),
-       ('code121223', 'mailfour@example.ru', 0, 'Максим Титов', 'hashword121223', 'https://clck.ru/YvTa9',
+       ('ziiZEP', 'mailfour@example.ru', 0, 'Максим Титов', '$2a$12$xTDmyM6xcrMI3GoatFjOxulPLZwuz.zP4XVbij7EqFiOXG0Xb..46', 'https://robohash.org/necessimvero?size=350x350&set=set1',
         current_time()),
-       ('code121224', 'mailfive@example.ru', 1, 'Владимир Тутов', 'hashword121224', 'https://clck.ru/YvTcZ',
+       ('pz02HJb', 'mailfive@example.ru', 1, 'Владимир Тутов', '$2a$12$7kSleRW1Lnv24ygiuZ5yB.3IUczHQbt1wBxpz02HJbLBDDoIySAKi', 'https://robohash.org/mailfive@example.ru.png?size=350x350&set=set1',
         current_time()),
-       ('code121228', 'JamesGosling@example.ru', 1, 'James Gosling', 'hashword121228', 'https://clck.ru/YvTcZ',
+       ('ziiZEPot', 'JamesGosling@example.ru', 1, 'James Gosling', '$2a$12$Ic9HK.72/LSACSNOo3.0k.0Cne0h.mzaSm0ziiZEPotQm.CfHEkNm', 'https://robohash.org/necessimvero?size=350x350&set=set1',
         current_time()),
-       ('code121225', 'mailsix@example.ru', 0, 'Евгений Толкунов', 'hashword121225', 'https://clck.ru/YvTgK',
+       ('QdYLCFL6', 'mailsix@example.ru', 0, 'Евгений Толкунов', '$2a$12$3znWAMhz4ZV5Gj9jMfG7XeGzo.VEfJDT4QdYLCFL6CB03zBlSbZqS', 'https://robohash.org/mailfive@example.ru.png?size=350x350&set=set1',
         current_time());
 
 INSERT INTO posts (date_time, is_active, moderation_status, text, title, view_count, moderator_id, user_id)

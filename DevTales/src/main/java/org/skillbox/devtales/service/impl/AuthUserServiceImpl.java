@@ -6,6 +6,7 @@ import org.skillbox.devtales.api.request.RegisterRequest;
 import org.skillbox.devtales.api.response.AuthResponse;
 import org.skillbox.devtales.api.response.UserDto;
 import org.skillbox.devtales.api.response.CommonResponse;
+import org.skillbox.devtales.config.AppConfig;
 import org.skillbox.devtales.exception.DuplicateUserEmailException;
 import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.repository.CaptchaRepository;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -63,26 +65,49 @@ public class AuthUserServiceImpl implements AuthUserService {
     }
 
     public AuthResponse login(AuthRequest authRequest, AuthenticationManager authenticationManager) {
+
+        if (userRepository.findByEmail(authRequest.getEmail()).isEmpty() || authRequest.getPassword().isBlank()){
+            return new AuthResponse();
+        }
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+        if (!passwordEncoder.matches(authRequest.getPassword(), getUserByEmail(authRequest.getEmail()).getPassword())){
+            return new AuthResponse();
+        }
+
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+
         SecurityContextHolder.getContext().setAuthentication(auth);
-        org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+        final String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        int userId = userRepository.findByEmail(authRequest.getEmail()).orElseThrow().getId();
+        AppConfig.addSessionId(session, userId);
+        org.springframework.security.core.userdetails.User user
+                = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
 
         return getAuthResponse(user.getUsername());
     }
 
     public AuthResponse logout() {
         AuthResponse authResponse = new AuthResponse();
-        authResponse.setResult(true);
+        final String session = RequestContextHolder.currentRequestAttributes().getSessionId();
+        if(isAuthorized(session)){
+        AppConfig.removeSession(session);
         SecurityContextHolder.clearContext();
+        }
 
+        authResponse.setResult(true);
         return authResponse;
     }
 
-    public AuthResponse getAuthResponse(String userName) {
-        org.skillbox.devtales.model.User authUser =
-                userRepository.findByEmail(userName)
-                        .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
+    private boolean isAuthorized(String session) {
+        return AppConfig.getSessions().containsKey(session);
+    }
+
+    public AuthResponse getAuthResponse(String email) {
+        User authUser = getUserByEmail(email);
+
+        AuthResponse authResponse = new AuthResponse();
 
         UserDto userDto = new UserDto();
         userDto.setId(authUser.getId());
@@ -92,11 +117,15 @@ public class AuthUserServiceImpl implements AuthUserService {
         userDto.setModeration(authUser.getIsModerator() == 1);
         userDto.setModerationCount(getNumPostsForModeration(authUser));
 
-        AuthResponse authResponse = new AuthResponse();
         authResponse.setResult(true);
         authResponse.setUserDto(userDto);
 
         return authResponse;
+    }
+
+    private User getUserByEmail(String userName) {
+        return userRepository.findByEmail(userName)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
     }
 
     private int getNumPostsForModeration(User authUser) {

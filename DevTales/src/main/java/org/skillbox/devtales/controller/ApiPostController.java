@@ -1,29 +1,29 @@
 package org.skillbox.devtales.controller;
 
 import lombok.AllArgsConstructor;
+import org.skillbox.devtales.api.request.PostRequest;
+import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostDto;
-import org.skillbox.devtales.service.impl.PostServiceImpl;
+import org.skillbox.devtales.service.PostService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Calendar;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
 public class ApiPostController {
 
-    private final static int CURRENT_YEAR = Calendar.getInstance().get(Calendar.YEAR);
-
-    private final PostServiceImpl postServiceImpl;
+    private final PostService postService;
 
     @GetMapping("/post/{id}")
     public ResponseEntity<PostDto> getOnePostById(@PathVariable(value = "id") int id, Principal principal) {
-        return ResponseEntity.ok(postServiceImpl.getPostById(id, principal));
+        return ResponseEntity.ok(postService.getPostById(id, principal));
     }
 
     @GetMapping("/post")
@@ -32,7 +32,7 @@ public class ApiPostController {
             @RequestParam(defaultValue = "limit") int limit,
             @RequestParam(defaultValue = "recent") String mode) {
 
-        return new ResponseEntity<>(postServiceImpl.getPosts(offset, limit, mode), new HttpHeaders(), HttpStatus.OK);
+        return new ResponseEntity<>(postService.getPosts(offset, limit, mode), new HttpHeaders(), HttpStatus.OK);
     }
 
     @GetMapping("/post/search")
@@ -41,7 +41,7 @@ public class ApiPostController {
             @RequestParam(defaultValue = "limit") int limit,
             String query) {
 
-        return new ResponseEntity<>(postServiceImpl.searchPostsByText(offset, limit, query), HttpStatus.OK);
+        return new ResponseEntity<>(postService.searchPostsByText(offset, limit, query), HttpStatus.OK);
     }
 
     @GetMapping("/post/byTag")
@@ -50,7 +50,7 @@ public class ApiPostController {
             @RequestParam(defaultValue = "limit") int limit,
             String tag) {
 
-        return new ResponseEntity<>(postServiceImpl.searchPostsByTag(offset, limit, tag), HttpStatus.OK);
+        return new ResponseEntity<>(postService.searchPostsByTag(offset, limit, tag), HttpStatus.OK);
     }
 
     @GetMapping("/post/byDate")
@@ -58,15 +58,33 @@ public class ApiPostController {
             @RequestParam(defaultValue = "offset") int offset,
             @RequestParam(defaultValue = "limit") int limit,
             String date) {
-        return new ResponseEntity<>(postServiceImpl.searchPostsByDate(offset, limit, date), HttpStatus.OK);
+        return new ResponseEntity<>(postService.searchPostsByDate(offset, limit, date), HttpStatus.OK);
     }
 
     @GetMapping("/post/moderation")
+    @PreAuthorize("hasAuthority('user:moderate')")
     public ResponseEntity<PostResponse> getPostsForModeration(
             @RequestParam(defaultValue = "offset") int offset,
             @RequestParam(defaultValue = "limit") int limit,
             String status) {
-        return new ResponseEntity<>(postServiceImpl.getPostsForModeration(offset, limit, status), HttpStatus.OK);
+        return new ResponseEntity<>(postService.getPostsForModeration(offset, limit, status), HttpStatus.OK);
+    }
+
+    @GetMapping("/post/my")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<PostResponse> getMyPosts(
+            @RequestParam(defaultValue = "offset") int offset,
+            @RequestParam(defaultValue = "limit") int limit,
+            String status,
+            Principal principal) {
+        return new ResponseEntity<>(postService.getMyPosts(offset, limit, status, principal), HttpStatus.OK);
+    }
+
+    @PostMapping("/post")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<CommonResponse> addPost(@RequestBody PostRequest postRequest, Principal principal){
+
+        return new ResponseEntity<>(postService.addPost(postRequest, principal), HttpStatus.OK);
     }
 
 }

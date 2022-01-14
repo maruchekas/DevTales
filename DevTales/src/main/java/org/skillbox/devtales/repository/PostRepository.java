@@ -2,6 +2,7 @@ package org.skillbox.devtales.repository;
 
 import org.skillbox.devtales.dto.PostDto;
 import org.skillbox.devtales.model.Post;
+import org.skillbox.devtales.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,6 +22,11 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query(HEAD_QUERY + " and p.id = :id")
     Optional<Post> findPostById(int id);
+
+    @Query("select p " +
+            "from Post p " +
+            "where p.Id = :id")
+    Optional<Post> findAnyPostById(int id);
 
     @Query(HEAD_QUERY)
     Page<Post> findAllActiveAndAcceptedPosts(Pageable pageable);
@@ -89,6 +95,11 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query(value = "select count(p) from Post p " +
             "where p.isActive = 1 and p.moderationStatus = 'NEW' ")
     int findCountPostsForModeration();
+
+    @Query(value = "select * from posts p " +
+            "where p.user_id = :userId and p.moderation_status = :status and p.is_active = :isActive ",
+            nativeQuery = true)
+    Page<Post> findMyPosts(String status, int userId, byte isActive, Pageable pageable);
 
     @Query(value = "select date_format(p.date_time, '%Y') as p_year " +
             "from posts p " +

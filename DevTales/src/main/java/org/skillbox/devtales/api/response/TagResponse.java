@@ -5,13 +5,13 @@ import lombok.Setter;
 import org.skillbox.devtales.dto.TagDto;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Set;
 
 @Component
 @Setter
 @Getter
 public class TagResponse {
 
-    private List<TagDto> tags;
+    private Set<TagDto> tags;
 
 }
