@@ -31,10 +31,7 @@ public class ApiAuthController {
 
     @GetMapping("/check")
     public ResponseEntity<AuthResponse> check(Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.ok(new AuthResponse());
-        }
-        return ResponseEntity.ok(authUserService.getAuthResponse(principal.getName()));
+        return new ResponseEntity<>(authUserService.check(principal), HttpStatus.OK);
     }
 
     @PostMapping("/login")

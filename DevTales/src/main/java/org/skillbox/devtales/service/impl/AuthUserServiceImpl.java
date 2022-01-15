@@ -14,6 +14,7 @@ import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.service.AuthUserService;
 import org.skillbox.devtales.util.UserAvatarUtil;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +88,18 @@ public class AuthUserServiceImpl implements AuthUserService {
                 = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
 
         return getAuthResponse(user.getUsername());
+    }
+
+    public AuthResponse check(Principal principal){
+        if (principal == null) {
+            return new AuthResponse();
+        }
+        User user = getUserByEmail(principal.getName());
+        if (!AppConfig.getSessions().containsValue(user.getId())){
+            return new AuthResponse();
+        }
+
+        return getAuthResponse(user.getEmail());
     }
 
     public AuthResponse logout() {
