@@ -87,4 +87,12 @@ public class ApiPostController {
         return new ResponseEntity<>(postService.addPost(postRequest, principal), HttpStatus.OK);
     }
 
+    @PutMapping("/post/{id}")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<CommonResponse> editPostById(@PathVariable(value = "id") int id,
+                                                       @RequestBody PostRequest postRequest,
+                                                       Principal principal) {
+        return new ResponseEntity<>(postService.editPost(id, postRequest, principal), HttpStatus.OK);
+    }
+
 }

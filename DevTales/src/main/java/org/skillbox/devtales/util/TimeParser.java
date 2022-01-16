@@ -1,15 +1,19 @@
 package org.skillbox.devtales.util;
 
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.TimeZone;
 
 public class TimeParser {
 
-    public static LocalDateTime getLocalDateTime(long dateWithTimestampAccessor) {
-        return LocalDateTime.parse(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                        .format(new Date(dateWithTimestampAccessor)),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    public static LocalDateTime getLocalDateTime(long timestamp) {
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp),
+                TimeZone.getDefault().toZoneId());
+    }
+
+    public static long getTimestamp(LocalDateTime localDateTime){
+        return ZonedDateTime.of(localDateTime, ZoneId.systemDefault()).toInstant().getEpochSecond();
     }
 }

@@ -10,8 +10,8 @@ import java.util.Random;
 public class UserAvatarUtil {
 
     public static String createDefaultRoboticAvatar(String username){
-        int setNum = new Random().nextInt(4);
-        String randomString = RandomStringUtils.randomAlphabetic(5);
+        int setNum = new Random().nextInt(4) + 1;
+        String randomString = RandomStringUtils.randomAlphanumeric(7);
 
         return Constants.BASE_ROBOTIC_AVA_URL + username + randomString + Constants.AVATAR_CONFIG + setNum;
     }

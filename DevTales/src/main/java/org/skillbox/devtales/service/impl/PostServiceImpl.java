@@ -2,7 +2,6 @@ package org.skillbox.devtales.service.impl;
 
 import lombok.AllArgsConstructor;
 import org.skillbox.devtales.api.request.PostRequest;
-import org.skillbox.devtales.api.request.RegisterRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostCommentDto;
@@ -29,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Principal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
@@ -168,37 +168,81 @@ public class PostServiceImpl implements PostService {
                 .setTitle(postRequest.getTitle())
                 .setText(postRequest.getText())
                 .setIsActive(postRequest.getActive())
-                .setDateTime(TimeParser.getLocalDateTime(postRequest.getTimestamp()))
+                .setDateTime(getCorrectPostTime(postRequest.getTimestamp()))
                 .setUser(userRepository.findByEmail(principal.getName()).orElseThrow())
                 .setViewCount(0)
                 .setModerationStatus(ModerationStatus.NEW);
-                post.setTags(tags);
+        post.setTags(tags);
         postRepository.save(post);
 
         return commonResponse;
     }
 
+    public CommonResponse editPost(int id, PostRequest postRequest, Principal principal) {
+        CommonResponse commonResponse = new CommonResponse();
+        Map<String, String> errors = validateAddPostRequest(postRequest);
+        Post post = postRepository.findAnyPostById(id).orElseThrow(
+                () -> new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"));
+
+        if (errors.size() > 0) {
+            commonResponse.setResult(false);
+            commonResponse.setErrors(errors);
+
+            return commonResponse;
+        }
+
+        post.setDateTime(getCorrectPostTime(postRequest.getTimestamp()));
+        post.setModerationStatus(getModerationStatusForEditedPost(principal.getName(), post.getModerationStatus()));
+
+        if (postRequest.getTitle() != null) {
+            post.setTitle(postRequest.getTitle());
+        }
+        if (postRequest.getText() != null) {
+            post.setText(postRequest.getText());
+        }
+        if (postRequest.getTags().length != 0) {
+            Set<Tag> tags = addTagsToPost(postRequest.getTags());
+            post.setTags(tags);
+        }
+        post.setIsActive(postRequest.getActive());
+        commonResponse.setResult(true);
+        postRepository.save(post);
+
+        return commonResponse;
+    }
+
+    private ModerationStatus getModerationStatusForEditedPost(String userEmail, ModerationStatus currentModerationStatus) {
+        return getUserByEmail(userEmail).getIsModerator() == 1 ? currentModerationStatus : ModerationStatus.NEW;
+    }
+
     private Map<String, String> validateAddPostRequest(PostRequest postRequest) {
         final String title = postRequest.getTitle();
         final String text = postRequest.getText();
-
+        final String simplePostText = HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, text.length());
         Map<String, String> errors = new HashMap<>();
 
         if (title.length() < 3) {
             errors.put("title", "Заголовок не установлен");
         }
 
-        if (text.length() < 50) {
+        if (simplePostText.length() < 50) {
             errors.put("text", "Текст публикации слишком короткий");
         }
 
         return errors;
     }
 
+    private LocalDateTime getCorrectPostTime(long timestamp) {
+
+        return TimeParser.getLocalDateTime(timestamp).isBefore(LocalDateTime.now())
+                ? LocalDateTime.now()
+                : TimeParser.getLocalDateTime(timestamp);
+    }
+
     private PostDto getPostData(Post post) {
         PostDto postData = new PostDto()
                 .setId(post.getId())
-                .setTimestamp(Timestamp.valueOf(post.getDateTime()).getTime() / MIL_TO_SEC)
+                .setTimestamp(TimeParser.getTimestamp(post.getDateTime()))
                 .setUser(getUserDataForPost(post.getUser()))
                 .setTitle(post.getTitle())
                 .setText(post.getText())
@@ -228,9 +272,10 @@ public class PostServiceImpl implements PostService {
     }
 
     private String getAnnounce(String text) {
-        return text.length() > ANNOUNCE_LENGTH_LIMIT ?
-                HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, ANNOUNCE_LENGTH_LIMIT) + "..."
-                : HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, text.length());
+        String announceText = HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, text.length());
+        return announceText.length() > ANNOUNCE_LENGTH_LIMIT ?
+                announceText.substring(0, ANNOUNCE_LENGTH_LIMIT) + "..."
+                : announceText;
     }
 
     private List<PostCommentDto> getCommentsForPost(Post post) {
@@ -297,6 +342,11 @@ public class PostServiceImpl implements PostService {
         return new UserDto()
                 .setId(user.getId())
                 .setName(user.getName());
+    }
+
+    private User getUserByEmail(String userName) {
+        return userRepository.findByEmail(userName)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
     }
 
     private int getLikeCount(Post post) {

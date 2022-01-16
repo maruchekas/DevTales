@@ -28,4 +28,6 @@ public interface PostService {
 
     CommonResponse addPost(PostRequest postRequest, Principal principal);
 
+    CommonResponse editPost(int id, PostRequest postRequest, Principal principal);
+
 }
