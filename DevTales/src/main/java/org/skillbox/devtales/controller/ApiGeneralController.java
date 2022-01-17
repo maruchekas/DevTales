@@ -5,6 +5,7 @@ import org.skillbox.devtales.api.response.CalendarResponse;
 import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.skillbox.devtales.api.response.TagResponse;
+import org.skillbox.devtales.service.PostService;
 import org.skillbox.devtales.service.SettingsService;
 import org.skillbox.devtales.service.impl.CalendarServiceImpl;
 import org.skillbox.devtales.service.impl.TagServiceImpl;
@@ -23,6 +24,7 @@ public class ApiGeneralController {
     private final SettingsService settingsService;
     private final TagServiceImpl tagServiceImpl;
     private final CalendarServiceImpl calendarService;
+    private final PostService postService;
 
     @GetMapping("/init")
     public InitResponse init() {

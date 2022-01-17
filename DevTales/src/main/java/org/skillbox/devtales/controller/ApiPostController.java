@@ -1,6 +1,7 @@
 package org.skillbox.devtales.controller;
 
 import lombok.AllArgsConstructor;
+import org.skillbox.devtales.api.request.ModeratePostRequest;
 import org.skillbox.devtales.api.request.PostRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
@@ -93,6 +94,12 @@ public class ApiPostController {
                                                        @RequestBody PostRequest postRequest,
                                                        Principal principal) {
         return new ResponseEntity<>(postService.editPost(id, postRequest, principal), HttpStatus.OK);
+    }
+
+    @PostMapping("/moderation")
+    @PreAuthorize("hasAuthority('user:moderate')")
+    public ResponseEntity<CommonResponse> moderatePost(@RequestBody ModeratePostRequest moderatePostRequest, Principal principal){
+        return new ResponseEntity<>(postService.moderatePost(moderatePostRequest, principal), HttpStatus.OK);
     }
 
 }

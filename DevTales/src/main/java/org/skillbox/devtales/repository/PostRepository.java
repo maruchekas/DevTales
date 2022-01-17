@@ -44,7 +44,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "order by p.postVotes.size desc ")
     Page<Post> findBestPostsSortedByLikeCount(Pageable pageable);
 
-    @Query(value = "select p.id, p.date_time, p.is_active, p.moderation_status, p.text, p.title, p.view_count, p.moderator_id, p.user_id, " +
+    @Query(value = "with tmp as (select p.id, p.date_time, p.is_active, " +
+            "p.moderation_status, p.text, p.title, p.view_count, p.moderator_id, p.user_id, " +
             "SUM(CASE " +
             "WHEN pv.value = 1 THEN 1 ELSE 0 END) " +
             "as like_count, " +
@@ -55,8 +56,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "left join post_votes pv on p.id = pv.post_id " +
             "where p.is_active = 1 and p.moderation_status = 'ACCEPTED' and p.date_time <= current_time() " +
             "group by p.id " +
-            "order by like_count desc ", nativeQuery = true)
-    Page<PostDto> findBestPostsByLikeCount(Pageable pageable);
+            "order by like_count desc) " +
+            "select  id, date_time, is_active, moderation_status, " +
+            "text, title, view_count, moderator_id, user_id from tmp ", nativeQuery = true)
+    Page<Post> findBestPostsByLikeCount(Pageable pageable);
 
     @Query(HEAD_QUERY +
             "group by p order by p.comments.size desc")

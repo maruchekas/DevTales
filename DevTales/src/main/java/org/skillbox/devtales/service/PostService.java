@@ -1,5 +1,6 @@
 package org.skillbox.devtales.service;
 
+import org.skillbox.devtales.api.request.ModeratePostRequest;
 import org.skillbox.devtales.api.request.PostRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
@@ -29,5 +30,7 @@ public interface PostService {
     CommonResponse addPost(PostRequest postRequest, Principal principal);
 
     CommonResponse editPost(int id, PostRequest postRequest, Principal principal);
+
+    CommonResponse moderatePost(ModeratePostRequest moderatePostRequest, Principal principal);
 
 }

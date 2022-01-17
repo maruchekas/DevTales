@@ -1,6 +1,7 @@
 package org.skillbox.devtales.service.impl;
 
 import lombok.AllArgsConstructor;
+import org.skillbox.devtales.api.request.ModeratePostRequest;
 import org.skillbox.devtales.api.request.PostRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
@@ -204,6 +205,36 @@ public class PostServiceImpl implements PostService {
         post.setIsActive(postRequest.getActive());
         commonResponse.setResult(true);
         postRepository.save(post);
+
+        return commonResponse;
+    }
+
+    public CommonResponse moderatePost(ModeratePostRequest moderatePostRequest, Principal principal) {
+        CommonResponse commonResponse = new CommonResponse();
+        int postId = moderatePostRequest.getPostId();
+        String decision = moderatePostRequest.getDecision();
+        ;
+
+        Post post = postRepository.findAnyPostById(postId).orElseThrow(
+                () -> new PostNotFoundException("Пост с id " + postId + " не существует или заблокирован"));
+        User moderator = getUserByEmail(principal.getName());
+
+        if (moderator.getIsModerator() == 1) {
+            switch (decision) {
+                case "accept" -> {
+                    post.setModerationStatus(ModerationStatus.ACCEPTED);
+                    post.setModerator(moderator);
+                }
+                case "decline" -> {
+                    post.setModerationStatus(ModerationStatus.DECLINED);
+                    post.setModerator(moderator);
+                }
+                default -> post.setModerationStatus(post.getModerationStatus());
+            }
+            postRepository.save(post);
+            commonResponse.setResult(true);
+            return commonResponse;
+        }
 
         return commonResponse;
     }

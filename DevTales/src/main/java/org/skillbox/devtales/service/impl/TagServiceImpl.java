@@ -12,7 +12,6 @@ import org.skillbox.devtales.service.TagService;
 import org.skillbox.devtales.util.Mapper;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -40,12 +39,13 @@ public class TagServiceImpl implements TagService {
 
     private void setWeightForTag(TagDto tagDto) {
         int countAllPosts = (int) postRepository.count();
-        int numOfOccureTagInPosts = tagToPostRepository.findAllTagsById(tagDto.getId()).size();
-        double abnormalWeight = (double) numOfOccureTagInPosts / countAllPosts;
+        int numOfOccurTagInPosts = tagToPostRepository.findAllTagsById(tagDto.getId()).size();
+        double abnormalWeight = (double) numOfOccurTagInPosts / countAllPosts;
         if (maxWeight < abnormalWeight) {
             maxWeight = abnormalWeight;
         }
         double normalWeight = 1 / maxWeight * abnormalWeight;
+        normalWeight = Math.max(normalWeight, 0.3);
         tagDto.setWeight(normalWeight);
 
     }
