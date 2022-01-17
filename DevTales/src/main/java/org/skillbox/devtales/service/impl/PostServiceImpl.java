@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.skillbox.devtales.api.request.PostRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
+import org.skillbox.devtales.config.Constants;
 import org.skillbox.devtales.dto.PostCommentDto;
 import org.skillbox.devtales.dto.PostDto;
 import org.skillbox.devtales.dto.UserDto;
@@ -27,16 +28,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Component
 @AllArgsConstructor
 public class PostServiceImpl implements PostService {
-
-    private final int MIL_TO_SEC = 1000;
-    private final int ANNOUNCE_LENGTH_LIMIT = 150;
 
     private final PostRepository postRepository;
     private final PostVoteRepository postVoteRepository;
@@ -63,8 +60,8 @@ public class PostServiceImpl implements PostService {
                 : postRepository.findAnyPostById(id).orElseThrow(() ->
                 new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"));
         if (principal == null ||
-                !(userRepository.findByEmail(principal.getName()).get().getIsModerator() == 1
-                        || userRepository.findByEmail(principal.getName()).get().getId() == post.getUser().getId())) {
+                !(getUserByEmail(principal.getName()).getIsModerator() == 1
+                        || getUserByEmail(principal.getName()).getId() == post.getUser().getId())) {
             post.setViewCount(post.getViewCount() + 1);
             postRepository.save(post);
         }
@@ -273,8 +270,8 @@ public class PostServiceImpl implements PostService {
 
     private String getAnnounce(String text) {
         String announceText = HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, text.length());
-        return announceText.length() > ANNOUNCE_LENGTH_LIMIT ?
-                announceText.substring(0, ANNOUNCE_LENGTH_LIMIT) + "..."
+        return announceText.length() > Constants.ANNOUNCE_LENGTH_LIMIT ?
+                announceText.substring(0, Constants.ANNOUNCE_LENGTH_LIMIT) + "..."
                 : announceText;
     }
 
@@ -324,7 +321,7 @@ public class PostServiceImpl implements PostService {
 
         return new PostCommentDto()
                 .setId(comment.getId())
-                .setTimestamp(Timestamp.valueOf(comment.getTime()).getTime() / MIL_TO_SEC)
+                .setTimestamp(TimeParser.getTimestamp(comment.getTime()))
                 .setText(comment.getText())
                 .setUser(getUserDataForComment(comment.getUser()));
     }

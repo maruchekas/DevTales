@@ -6,11 +6,11 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.skillbox.devtales.api.response.AuthCaptchaResponse;
+import org.skillbox.devtales.config.Constants;
 import org.skillbox.devtales.model.CaptchaCode;
 import org.skillbox.devtales.repository.CaptchaRepository;
 import org.skillbox.devtales.service.CaptchaService;
 import org.skillbox.devtales.util.CaptchaUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -21,28 +21,20 @@ import java.util.List;
 @Setter
 @Getter
 public class CaptchaServiceImpl implements CaptchaService {
-    @Value("${captcha.image}")
-    private String imageEncodeSuffix;
-    @Value("${captcha.width-origin}")
-    private int captchaOriginWidth;
-    @Value("${captcha.height-origin}")
-    private int captchaOriginHeight;
-    @Value("${captcha.width-new}")
-    private int captchaNewWidth;
-    @Value("${captcha.height-new}")
-    private int captchaNewHeight;
-    private static LocalDateTime timeToDeleteOldCaptcha = LocalDateTime.now().minusHours(1);
 
+    private static LocalDateTime timeToDeleteOldCaptcha =
+            LocalDateTime.now().minusSeconds(Constants.CAPTCHA_LIFESPAN_BY_SEC);
 
     private final CaptchaRepository captchaRepository;
 
     public AuthCaptchaResponse getCaptcha() {
         deleteOldCaptcha();
         String secretCode = CaptchaUtil.generateRandomString();
-        Captcha captcha = CaptchaUtil.createCaptcha(captchaOriginWidth, captchaOriginHeight);
+        Captcha captcha = CaptchaUtil.createCaptcha(Constants.CAPTCHA_WIDTH_ORIGIN, Constants.CAPTCHA_HEIGHT_ORIGIN);
         AuthCaptchaResponse authCaptchaResponse = new AuthCaptchaResponse()
                 .setSecret(secretCode)
-                .setImage(imageEncodeSuffix + CaptchaUtil.encodeCaptcha(captcha, captchaNewWidth, captchaNewHeight));
+                .setImage(Constants.CAPTCHA_IMAGE_PREFIX +
+                        CaptchaUtil.encodeCaptcha(captcha, Constants.CAPTCHA_WIDTH_NEW, Constants.CAPTCHA_HEIGHT_NEW));
         CaptchaCode captchaCode = new CaptchaCode()
                 .setCode(captcha.getAnswer())
                 .setSecretCode(secretCode)

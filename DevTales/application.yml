@@ -12,17 +12,6 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-captcha:
-  width-origin: 150
-  width-new: 100
-  height-origin: 50
-  height-new: 35
-  image: data:captchaImage/png;base64,
-  lifespanBySec: 0
-avatar:
-  basic_url: https://robohash.org/
-  avatar_config: .png?size=360x360&set=set
-
 
 blog:
   title: DevPub
