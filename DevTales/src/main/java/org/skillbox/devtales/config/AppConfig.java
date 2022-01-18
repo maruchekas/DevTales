@@ -1,8 +1,11 @@
 package org.skillbox.devtales.config;
 
+import org.springframework.context.annotation.Configuration;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@Configuration
 public class AppConfig {
 
     private final static Map<String, Integer> sessions = new HashMap<>();

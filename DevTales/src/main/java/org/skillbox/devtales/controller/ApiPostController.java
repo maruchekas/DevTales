@@ -96,10 +96,4 @@ public class ApiPostController {
         return new ResponseEntity<>(postService.editPost(id, postRequest, principal), HttpStatus.OK);
     }
 
-    @PostMapping("/moderation")
-    @PreAuthorize("hasAuthority('user:moderate')")
-    public ResponseEntity<CommonResponse> moderatePost(@RequestBody ModeratePostRequest moderatePostRequest, Principal principal){
-        return new ResponseEntity<>(postService.moderatePost(moderatePostRequest, principal), HttpStatus.OK);
-    }
-
 }
