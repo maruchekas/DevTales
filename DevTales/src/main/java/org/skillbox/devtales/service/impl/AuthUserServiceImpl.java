@@ -143,7 +143,7 @@ public class AuthUserServiceImpl implements AuthUserService {
         return authResponse;
     }
 
-    private User getUserByEmail(String userName) {
+    public User getUserByEmail(String userName) {
         return userRepository.findByEmail(userName)
                 .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
     }

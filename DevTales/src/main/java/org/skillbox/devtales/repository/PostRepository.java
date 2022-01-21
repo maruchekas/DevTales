@@ -1,8 +1,6 @@
 package org.skillbox.devtales.repository;
 
-import org.skillbox.devtales.dto.PostDto;
 import org.skillbox.devtales.model.Post;
-import org.skillbox.devtales.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,7 +23,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query("select p " +
             "from Post p " +
-            "where p.Id = :id")
+            "where p.id = :id")
     Optional<Post> findAnyPostById(int id);
 
     @Query(HEAD_QUERY)
@@ -39,27 +37,15 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "order by p.dateTime asc ")
     Page<Post> findNewPostsSortedByDate(Pageable pageable);
 
-    @Query(HEAD_QUERY +
-            "group by p " +
-            "order by p.postVotes.size desc ")
-    Page<Post> findBestPostsSortedByLikeCount(Pageable pageable);
-
-    @Query(value = "with tmp as (select p.id, p.date_time, p.is_active, " +
-            "p.moderation_status, p.text, p.title, p.view_count, p.moderator_id, p.user_id, " +
-            "SUM(CASE " +
-            "WHEN pv.value = 1 THEN 1 ELSE 0 END) " +
-            "as like_count, " +
-            "SUM(CASE " +
-            "WHEN pv.value = -1 THEN 1 ELSE 0 END) " +
-            "as dislike_count " +
+    @Query(value = "select * " +
             "from posts p " +
-            "left join post_votes pv on p.id = pv.post_id " +
-            "where p.is_active = 1 and p.moderation_status = 'ACCEPTED' and p.date_time <= current_time() " +
-            "group by p.id " +
-            "order by like_count desc) " +
-            "select  id, date_time, is_active, moderation_status, " +
-            "text, title, view_count, moderator_id, user_id from tmp ", nativeQuery = true)
-    Page<Post> findBestPostsByLikeCount(Pageable pageable);
+            "where p.is_active = 1 " +
+            "and p.moderation_status = 'ACCEPTED' " +
+            "and p.`date_time` <= current_time " +
+            "order by " +
+            "(select sum(value) from post_votes c " +
+            "where c.post_id = p.id and c.value = 1) desc", nativeQuery = true)
+    Page<Post> findBestPostsSortedByLikeCount(Pageable pageable);
 
     @Query(HEAD_QUERY +
             "group by p order by p.comments.size desc")

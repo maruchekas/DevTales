@@ -19,6 +19,7 @@ import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.PostVoteRepository;
 import org.skillbox.devtales.repository.TagRepository;
 import org.skillbox.devtales.repository.UserRepository;
+import org.skillbox.devtales.service.AuthUserService;
 import org.skillbox.devtales.service.PostService;
 import org.skillbox.devtales.util.HtmlToSimpleTextUtil;
 import org.skillbox.devtales.util.TimeParser;
@@ -36,6 +37,7 @@ import java.util.*;
 @AllArgsConstructor
 public class PostServiceImpl implements PostService {
 
+    private final AuthUserService userService;
     private final PostRepository postRepository;
     private final PostVoteRepository postVoteRepository;
     private final UserRepository userRepository;
@@ -61,8 +63,8 @@ public class PostServiceImpl implements PostService {
                 : postRepository.findAnyPostById(id).orElseThrow(() ->
                 new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"));
         if (principal == null ||
-                !(getUserByEmail(principal.getName()).getIsModerator() == 1
-                        || getUserByEmail(principal.getName()).getId() == post.getUser().getId())) {
+                !(userService.getUserByEmail(principal.getName()).getIsModerator() == 1
+                        || userService.getUserByEmail(principal.getName()).getId() == post.getUser().getId())) {
             post.setViewCount(post.getViewCount() + 1);
             postRepository.save(post);
         }
@@ -217,7 +219,7 @@ public class PostServiceImpl implements PostService {
 
         Post post = postRepository.findAnyPostById(postId).orElseThrow(
                 () -> new PostNotFoundException("Пост с id " + postId + " не существует или заблокирован"));
-        User moderator = getUserByEmail(principal.getName());
+        User moderator = userService.getUserByEmail(principal.getName());
 
         if (moderator.getIsModerator() == 1) {
             switch (decision) {
@@ -240,7 +242,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private ModerationStatus getModerationStatusForEditedPost(String userEmail, ModerationStatus currentModerationStatus) {
-        return getUserByEmail(userEmail).getIsModerator() == 1 ? currentModerationStatus : ModerationStatus.NEW;
+        return userService.getUserByEmail(userEmail).getIsModerator() == 1 ? currentModerationStatus : ModerationStatus.NEW;
     }
 
     private Map<String, String> validateAddPostRequest(PostRequest postRequest) {
@@ -370,11 +372,6 @@ public class PostServiceImpl implements PostService {
         return new UserDto()
                 .setId(user.getId())
                 .setName(user.getName());
-    }
-
-    private User getUserByEmail(String userName) {
-        return userRepository.findByEmail(userName)
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
     }
 
     private int getLikeCount(Post post) {

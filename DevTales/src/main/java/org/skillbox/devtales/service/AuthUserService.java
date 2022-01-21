@@ -5,6 +5,7 @@ import org.skillbox.devtales.api.request.RegisterRequest;
 import org.skillbox.devtales.api.response.AuthResponse;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.exception.DuplicateUserEmailException;
+import org.skillbox.devtales.model.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
@@ -23,4 +24,6 @@ public interface AuthUserService {
     AuthResponse check(Principal principal);
 
     AuthResponse logout();
+
+    User getUserByEmail(String userName);
 }

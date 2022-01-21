@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -30,24 +31,25 @@ public class UploadImageServiceImpl implements UploadImageService {
 
     private final Cloudinary cloudinary;
 
-    public String savaImage(MultipartFile image, Principal principal){
-        return null;
+    public String saveImage(MultipartFile image, Principal principal) throws IOException {
+
+        Map params = getUploadParamsMap(principal.getName(), 1024);
+        Map uploadResult = cloudinary.uploader().upload(image.getBytes(), params);
+
+        return uploadResult.get("url").toString();
     }
 
     public String uploadImage(String username) throws IOException {
         String format = "png";
-        String tmpFilePath = "src/main/resources/" + username + format;
 
-        Map params = ObjectUtils.asMap(
-                "public_id", getUploadedFilePath() + username,
-                "transformation", new Transformation<>().width(36).height(36)
-        );
+        Map params = getUploadParamsMap(username, 360);
         String path = getUrlForDefaultAvatar(username);
         BufferedImage image = ImageIO.read(new URL(path));
-        ImageIO.write(image, "png", new File(tmpFilePath));
-        File file = new File(tmpFilePath);
-        Map uploadResult = cloudinary.uploader().upload(file, params);
-        FileUtils.forceDelete(file);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, format, baos);
+        byte[] bytes = baos.toByteArray();
+
+        Map uploadResult = cloudinary.uploader().upload(bytes, params);
 
         return uploadResult.get("url").toString();
     }
@@ -69,5 +71,12 @@ public class UploadImageServiceImpl implements UploadImageService {
         }
 
         return "upload" + chainRandomFolders;
+    }
+
+    private Map getUploadParamsMap(String username, int transformationParams) {
+        return ObjectUtils.asMap(
+                "public_id", getUploadedFilePath() + username,
+                "transformation", new Transformation<>().width(transformationParams).height(transformationParams)
+        );
     }
 }

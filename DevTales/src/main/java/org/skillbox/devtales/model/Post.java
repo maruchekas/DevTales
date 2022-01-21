@@ -22,7 +22,7 @@ public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Id;
+    private int id;
     @Column(columnDefinition = "TINYINT", length = 1)
     @NonNull
     private int isActive;
