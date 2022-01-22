@@ -1,7 +1,6 @@
 package org.skillbox.devtales.controller;
 
 import lombok.AllArgsConstructor;
-import org.skillbox.devtales.api.request.ModeratePostRequest;
 import org.skillbox.devtales.api.request.PostRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;

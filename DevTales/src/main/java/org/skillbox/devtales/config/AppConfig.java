@@ -12,12 +12,10 @@ public class AppConfig {
 
     public static void addSessionId(String session, Integer userId){
         sessions.put(session, userId);
-        System.out.println(sessions);
     }
 
     public static void removeSession(String session){
         sessions.remove(session);
-        System.out.println(sessions);
     }
 
     public static Map<String, Integer> getSessions(){
