@@ -1,5 +1,6 @@
 package org.skillbox.devtales.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,7 +10,7 @@ import java.security.Principal;
 @Service
 public interface UploadImageService {
 
-    String createAndSaveDefaultAvatarForUser(String imageUrl) throws IOException;
+    String createAndSaveDefaultAvatarForUser(String username) throws IOException;
 
-    Object saveImage(MultipartFile image, Principal principal) throws IOException;
+    ResponseEntity<?> saveImage(MultipartFile image, Principal principal) throws IOException;
 }

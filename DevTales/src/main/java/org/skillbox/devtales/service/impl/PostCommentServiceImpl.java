@@ -14,6 +14,8 @@ import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.service.PostCommentService;
 import org.skillbox.devtales.util.HtmlToSimpleTextUtil;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +32,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     CommentRepository commentRepository;
     UserRepository userRepository;
 
-    public ParentResponse addCommentToPost(PostCommentRequest postCommentRequest, Principal principal){
+    public ResponseEntity<ParentResponse> addCommentToPost(PostCommentRequest postCommentRequest, Principal principal){
         PostComment postComment = new PostComment();
         int parentId = postCommentRequest.getParentId();
         CommonResponse commonResponse = new CommonResponse();
@@ -45,7 +47,7 @@ public class PostCommentServiceImpl implements PostCommentService {
             commonResponse.setResult(false);
             commonResponse.setErrors(errors);
 
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.BAD_REQUEST);
         }
 
         postComment.setPost(getPostById(postCommentRequest.getPostId()));
@@ -55,8 +57,7 @@ public class PostCommentServiceImpl implements PostCommentService {
 
         commentRepository.save(postComment);
 
-        return new PostCommentResponse()
-        .setId(postComment.getId());
+        return new ResponseEntity<>(new PostCommentResponse().setId(postComment.getId()), HttpStatus.OK);
     }
 
     private Map<String, String> validateAddPostCommentRequest(PostCommentRequest postCommentRequest){

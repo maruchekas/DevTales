@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CommonResponse implements ParentResponse{
+public class CommonResponse implements ParentResponse {
 
     private boolean result;
     private Map<String, String> errors;

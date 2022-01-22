@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.skillbox.devtales.api.request.PostCommentRequest;
 import org.skillbox.devtales.api.response.ParentResponse;
 import org.skillbox.devtales.service.PostCommentService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +23,6 @@ public class PostCommentController {
     @PostMapping("/comment")
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<ParentResponse> addComment(@RequestBody PostCommentRequest postCommentRequest, Principal principal){
-        return new ResponseEntity<>(postCommentService.addCommentToPost(postCommentRequest, principal), HttpStatus.OK);
+        return postCommentService.addCommentToPost(postCommentRequest, principal);
     }
 }

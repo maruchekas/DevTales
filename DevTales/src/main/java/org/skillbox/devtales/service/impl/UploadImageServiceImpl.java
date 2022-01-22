@@ -10,6 +10,8 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.config.Constants;
 import org.skillbox.devtales.service.UploadImageService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +33,7 @@ public class UploadImageServiceImpl implements UploadImageService {
 
     private final Cloudinary cloudinary;
 
-    public Object saveImage(MultipartFile image, Principal principal) throws IOException {
+    public ResponseEntity<?> saveImage(MultipartFile image, Principal principal) throws IOException {
         CommonResponse commonResponse = new CommonResponse();
         Map<String, String> errors = validateImageRequest(image);
 
@@ -39,14 +41,14 @@ public class UploadImageServiceImpl implements UploadImageService {
             commonResponse.setResult(false);
             commonResponse.setErrors(errors);
 
-            return commonResponse;
+            return new ResponseEntity<>(commonResponse, HttpStatus.BAD_REQUEST);
         }
 
         Map params = ObjectUtils.asMap(
                 "public_id", getUploadedFilePath() + principal.getName());
         Map uploadResult = cloudinary.uploader().upload(image.getBytes(), params);
 
-        return uploadResult.get("url").toString();
+        return new ResponseEntity<>(uploadResult.get("url").toString(), HttpStatus.OK);
     }
 
     /**

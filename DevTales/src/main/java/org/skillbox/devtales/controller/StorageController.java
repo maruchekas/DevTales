@@ -2,7 +2,6 @@ package org.skillbox.devtales.controller;
 
 import lombok.AllArgsConstructor;
 import org.skillbox.devtales.service.UploadImageService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,11 +23,8 @@ public class StorageController {
     @PostMapping("/image")
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<?> uploadImage(@RequestPart(required = false) MultipartFile image,
-                                              Principal principal) throws IOException{
+                                         Principal principal) throws IOException {
 
-        System.out.println(image.getSize());
-        System.out.println(image.getContentType());
-        System.out.println(image.getName());
-        return new ResponseEntity<>(uploadImageService.saveImage(image, principal), HttpStatus.OK);
+        return uploadImageService.saveImage(image, principal);
     }
 }

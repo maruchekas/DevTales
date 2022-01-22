@@ -42,14 +42,14 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     public CommonResponse register(RegisterRequest registerRequest) throws DuplicateUserEmailException{
         PasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        CommonResponse response = new CommonResponse();
+        CommonResponse commonResponse = new CommonResponse();
         Map<String, String> errors = validateUserRegisterRequest(registerRequest);
 
         if (errors.size() > 0) {
-            response.setResult(false);
-            response.setErrors(errors);
+            commonResponse.setResult(false);
+            commonResponse.setErrors(errors);
 
-            return response;
+            return commonResponse;
         }
 
         User user = new User()
@@ -62,14 +62,14 @@ public class AuthUserServiceImpl implements AuthUserService {
                 try{
                 user.setPhoto(uploadImageService.createAndSaveDefaultAvatarForUser(registerRequest.getEmail()));
                 } catch (IOException e){
-                    throw new FailedToUploadImageException("Не удалось установить аватар по умолчанию для пользователя "
-                            + registerRequest.getEmail());
+                    user.setPhoto(null);
+                    e.printStackTrace();
                 }
         userRepository.save(user);
 
-        response.setResult(true);
+        commonResponse.setResult(true);
 
-        return response;
+        return commonResponse;
     }
 
     public AuthResponse login(AuthRequest authRequest, AuthenticationManager authenticationManager) {
