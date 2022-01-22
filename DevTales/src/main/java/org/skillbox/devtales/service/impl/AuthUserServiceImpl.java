@@ -60,7 +60,7 @@ public class AuthUserServiceImpl implements AuthUserService {
                 .setIsModerator(0)
                 .setCode(String.valueOf(registerRequest.getCaptchaSecret()));
                 try{
-                user.setPhoto(uploadImageService.uploadImage(registerRequest.getEmail()));
+                user.setPhoto(uploadImageService.createAndSaveDefaultAvatarForUser(registerRequest.getEmail()));
                 } catch (IOException e){
                     throw new FailedToUploadImageException("Не удалось установить аватар по умолчанию для пользователя "
                             + registerRequest.getEmail());

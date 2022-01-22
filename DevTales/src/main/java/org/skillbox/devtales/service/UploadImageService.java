@@ -9,7 +9,7 @@ import java.security.Principal;
 @Service
 public interface UploadImageService {
 
-    String uploadImage(String imageUrl) throws IOException;
+    String createAndSaveDefaultAvatarForUser(String imageUrl) throws IOException;
 
-    String saveImage(MultipartFile image, Principal principal) throws IOException;
+    Object saveImage(MultipartFile image, Principal principal) throws IOException;
 }

@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.config.Constants;
 import org.skillbox.devtales.service.UploadImageService;
 import org.springframework.stereotype.Component;
@@ -16,10 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -31,24 +31,42 @@ public class UploadImageServiceImpl implements UploadImageService {
 
     private final Cloudinary cloudinary;
 
-    public String saveImage(MultipartFile image, Principal principal) throws IOException {
+    public Object saveImage(MultipartFile image, Principal principal) throws IOException {
+        CommonResponse commonResponse = new CommonResponse();
+        Map<String, String> errors = validateImageRequest(image);
 
-        Map params = getUploadParamsMap(principal.getName(), 1024);
+        if (errors.size() > 0) {
+            commonResponse.setResult(false);
+            commonResponse.setErrors(errors);
+
+            return commonResponse;
+        }
+
+        Map params = ObjectUtils.asMap(
+                "public_id", getUploadedFilePath() + principal.getName());
         Map uploadResult = cloudinary.uploader().upload(image.getBytes(), params);
 
         return uploadResult.get("url").toString();
     }
 
-    public String uploadImage(String username) throws IOException {
+    /**
+     * метод генерирует изображение при помощи сервиса Robohash и сохраняет его в хранилище Cloudinary
+     * при успешной регистрации пользователя, ему, в качестве аватара, устанавливается сгенерированное изображение
+     *
+     * @param username
+     * @return String url - путь к созданному изображению
+     * @throws IOException
+     */
+    public String createAndSaveDefaultAvatarForUser(String username) throws IOException {
         String format = "png";
 
-        Map params = getUploadParamsMap(username, 360);
         String path = getUrlForDefaultAvatar(username);
         BufferedImage image = ImageIO.read(new URL(path));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, format, baos);
         byte[] bytes = baos.toByteArray();
 
+        Map params = getUploadImageParams(image, Constants.TARGET_AVATAR_WIDTH_TO_UPLOAD, username);
         Map uploadResult = cloudinary.uploader().upload(bytes, params);
 
         return uploadResult.get("url").toString();
@@ -73,10 +91,35 @@ public class UploadImageServiceImpl implements UploadImageService {
         return "upload" + chainRandomFolders;
     }
 
-    private Map getUploadParamsMap(String username, int transformationParams) {
+    private Map getUploadImageParams(BufferedImage image, int targetImgWidth, String username) {
+        int imageHeight = image.getHeight();
+        int imageWidth = image.getWidth();
+        int targetImgHeight = (int) Math.round(imageHeight / (imageWidth / (double) targetImgWidth));
+
         return ObjectUtils.asMap(
                 "public_id", getUploadedFilePath() + username,
-                "transformation", new Transformation<>().width(transformationParams).height(transformationParams)
+                "transformation", new Transformation<>().width(targetImgWidth).height(targetImgHeight)
         );
+    }
+
+    private Map<String, String> validateImageRequest(MultipartFile image) {
+        final long fileSize = image.getSize();
+        final String type = image.getContentType();
+        Map<String, String> errors = new HashMap<>();
+
+        if (fileSize > 1_572_864) {
+            errors.put("image", "Размер файла превышает допустимый размер");
+        }
+
+        if (fileSize == 0) {
+            errors.put("image", "Размер файла слишклм мал или файл не добавлен");
+        }
+
+        assert type != null;
+        if (!type.startsWith("image/")) {
+            errors.put("content_type", "Неизвестный тип файла");
+        }
+
+        return errors;
     }
 }

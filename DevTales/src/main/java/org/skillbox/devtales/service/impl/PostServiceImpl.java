@@ -215,7 +215,6 @@ public class PostServiceImpl implements PostService {
         CommonResponse commonResponse = new CommonResponse();
         int postId = moderatePostRequest.getPostId();
         String decision = moderatePostRequest.getDecision();
-        ;
 
         Post post = postRepository.findAnyPostById(postId).orElseThrow(
                 () -> new PostNotFoundException("Пост с id " + postId + " не существует или заблокирован"));
