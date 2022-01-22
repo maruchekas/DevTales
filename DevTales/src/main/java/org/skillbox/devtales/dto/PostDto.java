@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
+import org.skillbox.devtales.api.response.UserDataResponse;
 
 import java.util.List;
 import java.util.Set;
@@ -17,7 +18,7 @@ public class PostDto {
     private int id;
     private long timestamp;
     private boolean isActive;
-    private UserDto user;
+    private UserDataResponse user;
     private String title;
     private String announce;
     private String text;

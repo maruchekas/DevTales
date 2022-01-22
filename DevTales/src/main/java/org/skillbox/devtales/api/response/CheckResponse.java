@@ -11,5 +11,5 @@ public class CheckResponse {
     private boolean result;
 
     @JsonProperty("user")
-    private UserDto userDto;
+    private UserDataResponse userDto;
 }

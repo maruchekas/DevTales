@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
+import org.skillbox.devtales.api.response.UserDataResponse;
 
 @Data
 @RequiredArgsConstructor
@@ -13,5 +14,5 @@ public class PostCommentDto {
     int id;
     long timestamp;
     String text;
-    UserDto user;
+    UserDataResponse user;
 }
