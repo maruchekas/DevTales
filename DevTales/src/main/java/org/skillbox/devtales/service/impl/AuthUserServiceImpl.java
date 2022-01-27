@@ -41,7 +41,7 @@ public class AuthUserServiceImpl implements AuthUserService {
     private final UploadImageService uploadImageService;
 
     public CommonResponse register(RegisterRequest registerRequest) throws DuplicateUserEmailException{
-        PasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
         CommonResponse commonResponse = new CommonResponse();
         Map<String, String> errors = validateUserRegisterRequest(registerRequest);
 
@@ -52,21 +52,8 @@ public class AuthUserServiceImpl implements AuthUserService {
             return commonResponse;
         }
 
-        User user = new User()
-                .setName(registerRequest.getName())
-                .setPassword(encoder.encode(registerRequest.getPassword()))
-                .setEmail(registerRequest.getEmail())
-                .setRegTime(LocalDateTime.now())
-                .setIsModerator(0)
-                .setCode(String.valueOf(registerRequest.getCaptchaSecret()));
-                try{
-                user.setPhoto(uploadImageService.createAndSaveDefaultAvatarForUser(registerRequest.getEmail()));
-                } catch (IOException e){
-                    user.setPhoto(null);
-                    e.printStackTrace();
-                }
+        User user = createNewUser(registerRequest);
         userRepository.save(user);
-
         commonResponse.setResult(true);
 
         return commonResponse;
@@ -124,34 +111,6 @@ public class AuthUserServiceImpl implements AuthUserService {
         return AppConfig.getSessions().containsKey(session);
     }
 
-    public AuthResponse getAuthResponse(String email) {
-        User authUser = getUserByEmail(email);
-
-        AuthResponse authResponse = new AuthResponse();
-
-        UserDto userDto = new UserDto();
-        userDto.setId(authUser.getId());
-        userDto.setEmail(authUser.getEmail());
-        userDto.setName(authUser.getName());
-        userDto.setPhoto(authUser.getPhoto());
-        userDto.setModeration(authUser.getIsModerator() == 1);
-        userDto.setModerationCount(getNumPostsForModeration(authUser));
-
-        authResponse.setResult(true);
-        authResponse.setUserDto(userDto);
-
-        return authResponse;
-    }
-
-    public User getUserByEmail(String userName) {
-        return userRepository.findByEmail(userName)
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
-    }
-
-    private int getNumPostsForModeration(User authUser) {
-        return authUser.getIsModerator() == 1 ? postRepository.findCountPostsForModeration() : 0;
-    }
-
     private Map<String, String> validateUserRegisterRequest(RegisterRequest request) {
         final String email = request.getEmail();
         final String name = request.getName().trim();
@@ -178,6 +137,53 @@ public class AuthUserServiceImpl implements AuthUserService {
         }
 
         return errors;
+    }
+
+    private User createNewUser(RegisterRequest registerRequest){
+        PasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        User user = new User()
+                .setName(registerRequest.getName())
+                .setPassword(encoder.encode(registerRequest.getPassword()))
+                .setEmail(registerRequest.getEmail())
+                .setRegTime(LocalDateTime.now())
+                .setIsModerator(0)
+                .setCode(String.valueOf(registerRequest.getCaptchaSecret()));
+        try{
+            user.setPhoto(uploadImageService.createAndSaveDefaultAvatarForUser(registerRequest.getEmail()));
+        } catch (IOException e){
+            user.setPhoto(null);
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
+    public AuthResponse getAuthResponse(String email) {
+        User authUser = getUserByEmail(email);
+
+        AuthResponse authResponse = new AuthResponse();
+
+        UserDto userDto = new UserDto();
+        userDto.setId(authUser.getId());
+        userDto.setEmail(authUser.getEmail());
+        userDto.setName(authUser.getName());
+        userDto.setPhoto(authUser.getPhoto());
+        userDto.setModeration(authUser.getIsModerator() == 1);
+        userDto.setModerationCount(getNumPostsForModeration(authUser));
+
+        authResponse.setResult(true);
+        authResponse.setUserDto(userDto);
+
+        return authResponse;
+    }
+
+    public User getUserByEmail(String userName) {
+        return userRepository.findByEmail(userName)
+                .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
+    }
+
+    private int getNumPostsForModeration(User authUser) {
+        return authUser.getIsModerator() == 1 ? postRepository.findCountPostsForModeration() : 0;
     }
 
 }

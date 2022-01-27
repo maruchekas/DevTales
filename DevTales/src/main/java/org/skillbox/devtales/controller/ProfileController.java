@@ -1,25 +1,40 @@
 package org.skillbox.devtales.controller;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.skillbox.devtales.api.request.EditProfileRequest;
+import org.skillbox.devtales.api.request.EditProfileWithPhotoRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
+import org.skillbox.devtales.service.ProfileService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/profile")
+@RequestMapping("api/profile/my")
 public class ProfileController {
 
-    @PostMapping("/my")
+    private final ProfileService profileService;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<CommonResponse> editProfile(@RequestParam(value = "photo") MultipartFile multipartFile,
-                                                      @RequestParam(value = "removePhoto") int removePhoto){
-        return  new ResponseEntity<>(new CommonResponse(), HttpStatus.OK);
+    public ResponseEntity<CommonResponse> editProfile(@ModelAttribute EditProfileWithPhotoRequest editProfileRequest,
+                                                      Principal principal) throws IOException {
+
+        return new ResponseEntity<>(profileService.editProfile(editProfileRequest, principal), HttpStatus.OK);
+    }
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<CommonResponse> editProfileData(
+            @RequestBody EditProfileRequest editProfileRequest, Principal principal) throws IOException {
+        return new ResponseEntity<>(profileService.editProfile(editProfileRequest, principal), HttpStatus.OK);
     }
 }

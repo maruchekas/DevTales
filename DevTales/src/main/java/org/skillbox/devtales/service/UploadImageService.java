@@ -12,5 +12,9 @@ public interface UploadImageService {
 
     String createAndSaveDefaultAvatarForUser(String username) throws IOException;
 
+    String saveCustomAvatarForUser(MultipartFile image, Principal principal) throws IOException;
+
     ResponseEntity<?> saveImage(MultipartFile image, Principal principal) throws IOException;
+
+    String uploadImgToCloudAndGetUrl(MultipartFile image, Principal principal) throws IOException;
 }

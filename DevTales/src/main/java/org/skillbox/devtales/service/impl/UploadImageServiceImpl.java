@@ -44,11 +44,23 @@ public class UploadImageServiceImpl implements UploadImageService {
             return new ResponseEntity<>(commonResponse, HttpStatus.BAD_REQUEST);
         }
 
+        return new ResponseEntity<>(uploadImgToCloudAndGetUrl(image, principal), HttpStatus.OK);
+    }
+
+    public String saveCustomAvatarForUser(MultipartFile image, Principal principal) throws IOException {
+        BufferedImage bufImage = ImageIO.read(image.getInputStream());
+        Map params = getUploadImageParams(bufImage, Constants.TARGET_AVATAR_WIDTH_TO_UPLOAD, principal.getName());
+        Map uploadResult = cloudinary.uploader().upload(image.getBytes(), params);
+
+        return uploadResult.get("url").toString();
+    }
+
+    public String uploadImgToCloudAndGetUrl(MultipartFile image, Principal principal) throws IOException {
         Map params = ObjectUtils.asMap(
                 "public_id", getUploadedFilePath() + principal.getName());
         Map uploadResult = cloudinary.uploader().upload(image.getBytes(), params);
 
-        return new ResponseEntity<>(uploadResult.get("url").toString(), HttpStatus.OK);
+        return uploadResult.get("url").toString();
     }
 
     /**
