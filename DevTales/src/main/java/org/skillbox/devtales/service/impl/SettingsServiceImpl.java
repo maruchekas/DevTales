@@ -1,10 +1,10 @@
-package org.skillbox.devtales.service;
+package org.skillbox.devtales.service.impl;
 
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SettingsService {
+public class SettingsServiceImpl {
 
     public SettingsResponse getGlobalSettings() {
         SettingsResponse settingsResponse = new SettingsResponse();

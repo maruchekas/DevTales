@@ -5,15 +5,18 @@ import org.skillbox.devtales.api.response.CalendarResponse;
 import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.skillbox.devtales.api.response.TagResponse;
-import org.skillbox.devtales.service.PostService;
-import org.skillbox.devtales.service.SettingsService;
+import org.skillbox.devtales.service.UploadImageService;
+import org.skillbox.devtales.service.impl.SettingsServiceImpl;
 import org.skillbox.devtales.service.impl.CalendarServiceImpl;
 import org.skillbox.devtales.service.impl.TagServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.security.Principal;
 
 @AllArgsConstructor
 @RestController
@@ -21,10 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiGeneralController {
 
     private final InitResponse initResponse;
-    private final SettingsService settingsService;
+    private final SettingsServiceImpl settingsService;
     private final TagServiceImpl tagServiceImpl;
     private final CalendarServiceImpl calendarService;
-    private final PostService postService;
+    private final UploadImageService uploadImageService;
 
     @GetMapping("/init")
     public InitResponse init() {
@@ -45,6 +48,14 @@ public class ApiGeneralController {
     public ResponseEntity<CalendarResponse> postCalendar(int year) {
 
         return new ResponseEntity<>(calendarService.getPostsForCalendar(year), HttpStatus.OK);
+    }
+
+    @PostMapping("/image")
+    @PreAuthorize("hasAuthority('user:write')")
+    public ResponseEntity<?> uploadImage(@RequestPart(required = false) MultipartFile image,
+                                         Principal principal) throws IOException {
+
+        return uploadImageService.saveImage(image, principal);
     }
 
 }

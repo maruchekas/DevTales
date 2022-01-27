@@ -36,13 +36,13 @@ public class ProfileServiceImpl implements ProfileService {
     private final UserRepository userRepository;
 
     private final String namePattern = "^[a-zа-яA-ZА-Я0-9 _.-]*$";
-    private final String mailPattern = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+    private final String mailPattern = "^[\\w]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
 
     public CommonResponse editProfile(EditProfileWithPhotoRequest editRequest, Principal principal) throws IOException {
         EditProfileData editProfileData = validateAndEditRequest(editRequest, principal);
         Map<String, String> errors = editProfileData.getErrors();
 
-        if (errors.isEmpty()){
+        if (errors.isEmpty()) {
             User user = editProfileData.getUser();
             userRepository.save(user);
             return new CommonResponse().setResult(true);
@@ -69,7 +69,7 @@ public class ProfileServiceImpl implements ProfileService {
             if (!Pattern.matches(mailPattern, editRequest.getEmail())) {
                 errors.put("email", "Неверный формат email");
             }
-            if (user.getEmail().equals(editRequest.getEmail())) {
+            if (userRepository.findByEmail(editRequest.getEmail()).isPresent()) {
                 errors.put("email", "Этот e-mail уже зарегистрирован");
             } else user.setEmail(editRequest.getEmail());
         }
@@ -79,17 +79,17 @@ public class ProfileServiceImpl implements ProfileService {
                 errors.put("name", "Имя указано неверно");
             } else user.setName(editRequest.getName());
         }
-        if (!StringUtils.isBlank(editRequest.getPassword())) {
-            if (editRequest.getPassword().length() < 6) {
+        if (!StringUtils.isEmpty(editRequest.getPassword())) {
+            if (editRequest.getPassword().trim().length() < 6) {
                 errors.put("password", "Пароль короче 6-ти символов");
             } else user.setPassword(encoder.encode(editRequest.getPassword()));
         }
         if (editRequest instanceof EditProfileData) {
-            if (StringUtils.isBlank((CharSequence) editRequest.getPhoto()) && editRequest.getRemovePhoto() == 1) {
+            if (StringUtils.isBlank((String) editRequest.getPhoto()) && editRequest.getRemovePhoto() == 1) {
                 user.setPhoto(null);
-            } else if (editRequest.getPhoto() != null) {
-                user.setPhoto(imageService.uploadImgToCloudAndGetUrl((MultipartFile) editRequest.getPhoto(), principal));
             }
+        } else if (editRequest.getPhoto() != null) {
+            user.setPhoto(imageService.uploadImgToCloudAndGetUrl((MultipartFile) editRequest.getPhoto(), principal));
         }
 
         return new EditProfileData().setUser(user).setErrors(errors);

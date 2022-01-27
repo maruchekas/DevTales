@@ -5,7 +5,7 @@ public interface EditRequest {
 
     String getName();
 
-    CharSequence getPassword();
+    String getPassword();
 
     Object getPhoto();
 

@@ -22,7 +22,7 @@ import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.service.AuthUserService;
 import org.skillbox.devtales.service.PostService;
 import org.skillbox.devtales.util.HtmlToSimpleTextUtil;
-import org.skillbox.devtales.util.TimeParser;
+import org.skillbox.devtales.util.DateTimeUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -263,15 +263,15 @@ public class PostServiceImpl implements PostService {
 
     private LocalDateTime getCorrectPostTime(long timestamp) {
 
-        return TimeParser.getLocalDateTime(timestamp).isBefore(LocalDateTime.now())
+        return DateTimeUtil.getLocalDateTime(timestamp).isBefore(LocalDateTime.now())
                 ? LocalDateTime.now()
-                : TimeParser.getLocalDateTime(timestamp);
+                : DateTimeUtil.getLocalDateTime(timestamp);
     }
 
     private PostDto getPostData(Post post) {
         PostDto postData = new PostDto()
                 .setId(post.getId())
-                .setTimestamp(TimeParser.getTimestamp(post.getDateTime()))
+                .setTimestamp(DateTimeUtil.getTimestamp(post.getDateTime()))
                 .setUser(getUserDataForPost(post.getUser()))
                 .setTitle(post.getTitle())
                 .setText(post.getText())
@@ -353,7 +353,7 @@ public class PostServiceImpl implements PostService {
 
         return new PostCommentDto()
                 .setId(comment.getId())
-                .setTimestamp(TimeParser.getTimestamp(comment.getTime()))
+                .setTimestamp(DateTimeUtil.getTimestamp(comment.getTime()))
                 .setText(comment.getText())
                 .setUser(getUserDataForComment(comment.getUser()));
     }
