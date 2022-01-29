@@ -21,6 +21,7 @@ import org.skillbox.devtales.repository.TagRepository;
 import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.service.AuthUserService;
 import org.skillbox.devtales.service.PostService;
+import org.skillbox.devtales.service.SettingsService;
 import org.skillbox.devtales.util.HtmlToSimpleTextUtil;
 import org.skillbox.devtales.util.DateTimeUtil;
 import org.springframework.data.domain.Page;
@@ -38,6 +39,7 @@ import java.util.*;
 public class PostServiceImpl implements PostService {
 
     private final AuthUserService userService;
+    private final SettingsService settingsService;
     private final PostRepository postRepository;
     private final PostVoteRepository postVoteRepository;
     private final UserRepository userRepository;
@@ -171,7 +173,7 @@ public class PostServiceImpl implements PostService {
                 .setDateTime(getCorrectPostTime(postRequest.getTimestamp()))
                 .setUser(userRepository.findByEmail(principal.getName()).orElseThrow())
                 .setViewCount(0)
-                .setModerationStatus(ModerationStatus.NEW);
+                .setModerationStatus(getCorrectModerationStatus());
         post.setTags(tags);
         postRepository.save(post);
 
@@ -240,10 +242,6 @@ public class PostServiceImpl implements PostService {
         return commonResponse;
     }
 
-    private ModerationStatus getModerationStatusForEditedPost(String userEmail, ModerationStatus currentModerationStatus) {
-        return userService.getUserByEmail(userEmail).getIsModerator() == 1 ? currentModerationStatus : ModerationStatus.NEW;
-    }
-
     private Map<String, String> validateAddPostRequest(PostRequest postRequest) {
         final String title = postRequest.getTitle();
         final String text = postRequest.getText();
@@ -261,11 +259,22 @@ public class PostServiceImpl implements PostService {
         return errors;
     }
 
-    private LocalDateTime getCorrectPostTime(long timestamp) {
+    private Set<Tag> addTagsToPost(String[] tagsString) {
+        Set<Tag> tags = new HashSet<>();
+        for (String tagFromNewPost : tagsString
+        ) {
+            Tag tag = tagRepository.findByName(tagFromNewPost);
+            if (tag != null) {
+                tags.add(tag);
+            } else {
+                Tag newTag = new Tag();
+                newTag.setName(tagFromNewPost);
+                tagRepository.save(newTag);
+                tags.add(newTag);
+            }
+        }
 
-        return DateTimeUtil.getLocalDateTime(timestamp).isBefore(LocalDateTime.now())
-                ? LocalDateTime.now()
-                : DateTimeUtil.getLocalDateTime(timestamp);
+        return tags;
     }
 
     private PostDto getPostData(Post post) {
@@ -307,6 +316,25 @@ public class PostServiceImpl implements PostService {
                 : announceText;
     }
 
+    private LocalDateTime getCorrectPostTime(long timestamp) {
+
+        return DateTimeUtil.getLocalDateTime(timestamp).isBefore(LocalDateTime.now())
+                ? LocalDateTime.now()
+                : DateTimeUtil.getLocalDateTime(timestamp);
+    }
+
+    private ModerationStatus getCorrectModerationStatus(){
+        return settingsService.getGlobalSettings().isPostPremoderation()
+                ? ModerationStatus.NEW
+                : ModerationStatus.ACCEPTED;
+    }
+
+    private ModerationStatus getModerationStatusForEditedPost(String userEmail, ModerationStatus currentModerationStatus) {
+        return userService.getUserByEmail(userEmail).getIsModerator() == 1
+                ? currentModerationStatus
+                : getCorrectModerationStatus();
+    }
+
     private List<PostCommentDto> getCommentsForPost(Post post) {
         List<PostComment> comments = post.getComments();
         List<PostCommentDto> commentsDto = new ArrayList<>();
@@ -317,24 +345,6 @@ public class PostServiceImpl implements PostService {
         }
 
         return commentsDto;
-    }
-
-    private Set<Tag> addTagsToPost(String[] tagsString) {
-        Set<Tag> tags = new HashSet<>();
-        for (String tagFromNewPost : tagsString
-        ) {
-            Tag tag = tagRepository.findByName(tagFromNewPost);
-            if (tag != null) {
-                tags.add(tag);
-            } else {
-                Tag newTag = new Tag();
-                newTag.setName(tagFromNewPost);
-                tagRepository.save(newTag);
-                tags.add(newTag);
-            }
-        }
-
-        return tags;
     }
 
     private Set<String> getTagsFromPost(Post post) {

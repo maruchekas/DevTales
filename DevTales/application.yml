@@ -30,9 +30,9 @@ cloudinary:
   api-secret: ${API_SECRET}
 
 blog:
-  title: DevPub
-  subtitle: Рассказы разработчиков
-  phone: +7 987 654-32-10
-  email: alexandr.maruchek@gmail.com
-  copyright: Александр Маручек
-  copyrightFrom: 1984
+  title: ${TITLE}
+  subtitle: ${SUBTITLE}
+  phone: ${PHONE}
+  email: ${EMAIL}
+  copyright: ${COPYRIGHT}
+  copyrightFrom: ${COPYRIGHT_FROM}

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,5 +104,20 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "and date_format(p.date_time, '%Y') = :year " +
             "group by p_date ", nativeQuery = true)
     List<String> findPostsByYear(int year);
+
+    @Query("select count(p) from Post p where p.user.id = :id")
+    int findCountAllPostsByUserId(int id);
+
+    @Query("select sum(p.viewCount) from Post p ")
+    int findViewsCount();
+
+    @Query("select sum(p.viewCount) from Post p where p.user.id = :id")
+    int findViewsCountByUserId(int id);
+
+    @Query("select min(p.dateTime) from Post p ")
+    LocalDateTime findFirstPost();
+
+    @Query("select min(p.dateTime) from Post p where p.user.id = :id")
+    LocalDateTime findFirstPostByUserId(int id);
 
 }
