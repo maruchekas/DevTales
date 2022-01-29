@@ -59,7 +59,7 @@ public class PostServiceImpl implements PostService {
         return getPostResponseFromPostsPage(pagePosts);
     }
 
-    public PostDto getPostById(int id, Principal principal) {
+    public PostDto getPostDtoById(int id, Principal principal) {
         Post post = principal == null ? postRepository.findPostById(id).orElseThrow(() ->
                 new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"))
                 : postRepository.findAnyPostById(id).orElseThrow(() ->
@@ -293,6 +293,11 @@ public class PostServiceImpl implements PostService {
         postData.setIsActive(post.getIsActive());
 
         return postData;
+    }
+
+    public Post getPostById(int id){
+        return postRepository.findAnyPostById(id).orElseThrow(
+                () -> new PostNotFoundException("Post with id " + id + " not found"));
     }
 
     private PostResponse getPostResponseFromPostsPage(Page<Post> pagePosts) {

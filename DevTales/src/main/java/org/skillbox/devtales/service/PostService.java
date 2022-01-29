@@ -6,6 +6,7 @@ import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostDto;
 import org.skillbox.devtales.exception.PostNotFoundException;
+import org.skillbox.devtales.model.Post;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -15,7 +16,9 @@ public interface PostService {
 
     PostResponse getPosts(int offset, int limit, String mode);
 
-    PostDto getPostById(int id, Principal principal) throws PostNotFoundException;
+    PostDto getPostDtoById(int id, Principal principal) throws PostNotFoundException;
+
+    Post getPostById(int id);
 
     PostResponse searchPostsByTag(int offset, int limit, String tag);
 
