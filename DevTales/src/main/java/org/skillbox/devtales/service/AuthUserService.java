@@ -1,6 +1,7 @@
 package org.skillbox.devtales.service;
 
 import org.skillbox.devtales.api.request.AuthRequest;
+import org.skillbox.devtales.api.request.ChangePasswordRequest;
 import org.skillbox.devtales.api.request.RegisterRequest;
 import org.skillbox.devtales.api.response.AuthResponse;
 import org.skillbox.devtales.api.response.CommonResponse;
@@ -25,4 +26,8 @@ public interface AuthUserService {
     AuthResponse logout();
 
     User getUserByEmail(String userName);
+
+    CommonResponse restorePassword(String email);
+
+    CommonResponse changePassword(ChangePasswordRequest changePasswordRequest);
 }

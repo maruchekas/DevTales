@@ -16,6 +16,14 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  mail:
+    host: smtp.yandex.ru
+    username: alexandr.maruchek@receptionerapp.com
+    password: 3qew8Nbi@Zabbil
+    port: 465
+    protocol: smtps
+mail:
+  debug: true
 cloudinary:
   cloud-name: ${CLOUD_NAME}
   api-key: ${API_KEY}

@@ -2,7 +2,9 @@ package org.skillbox.devtales.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.skillbox.devtales.api.request.AuthRequest;
+import org.skillbox.devtales.api.request.ChangePasswordRequest;
 import org.skillbox.devtales.api.request.RegisterRequest;
+import org.skillbox.devtales.api.request.RestoreRequest;
 import org.skillbox.devtales.api.response.AuthResponse;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.exception.DuplicateUserEmailException;
@@ -45,6 +47,18 @@ public class ApiAuthController {
     public ResponseEntity<AuthResponse> logout() {
 
         return new ResponseEntity<>(authUserService.logout(), HttpStatus.OK);
+    }
+
+    @PostMapping("/restore")
+    public ResponseEntity<CommonResponse> restorePassword(@RequestBody RestoreRequest restoreRequest){
+
+        return new ResponseEntity<>(authUserService.restorePassword(restoreRequest.getEmail()), HttpStatus.OK);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
+
+        return new ResponseEntity<>(authUserService.changePassword(changePasswordRequest), HttpStatus.OK);
     }
 
 }
