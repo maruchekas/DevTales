@@ -25,16 +25,11 @@ public class ApiAuthController {
     private final AuthenticationManager authenticationManager;
     private final AuthUserService authUserService;
 
-
     @PostMapping("/register")
     public ResponseEntity<CommonResponse> register(@RequestBody RegisterRequest registerRequest) throws DuplicateUserEmailException {
         return new ResponseEntity<>(authUserService.register(registerRequest), HttpStatus.OK);
     }
 
-    @GetMapping("/check")
-    public ResponseEntity<AuthResponse> check(Principal principal) {
-        return new ResponseEntity<>(authUserService.check(principal), HttpStatus.OK);
-    }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
@@ -47,6 +42,11 @@ public class ApiAuthController {
     public ResponseEntity<AuthResponse> logout() {
 
         return new ResponseEntity<>(authUserService.logout(), HttpStatus.OK);
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<AuthResponse> check(Principal principal) {
+        return new ResponseEntity<>(authUserService.check(principal), HttpStatus.OK);
     }
 
     @PostMapping("/restore")

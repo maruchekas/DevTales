@@ -1,14 +1,15 @@
 package org.skillbox.devtales.controller;
 
 import lombok.AllArgsConstructor;
+import org.skillbox.devtales.api.request.EditSettingsRequest;
 import org.skillbox.devtales.api.response.CalendarResponse;
 import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.skillbox.devtales.api.response.TagResponse;
+import org.skillbox.devtales.service.CalendarService;
+import org.skillbox.devtales.service.SettingsService;
+import org.skillbox.devtales.service.TagService;
 import org.skillbox.devtales.service.UploadImageService;
-import org.skillbox.devtales.service.impl.SettingsServiceImpl;
-import org.skillbox.devtales.service.impl.CalendarServiceImpl;
-import org.skillbox.devtales.service.impl.TagServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,9 +25,9 @@ import java.security.Principal;
 public class ApiGeneralController {
 
     private final InitResponse initResponse;
-    private final SettingsServiceImpl settingsService;
-    private final TagServiceImpl tagServiceImpl;
-    private final CalendarServiceImpl calendarService;
+    private final SettingsService settingsService;
+    private final TagService tagService;
+    private final CalendarService calendarService;
     private final UploadImageService uploadImageService;
 
     @GetMapping("/init")
@@ -39,9 +40,15 @@ public class ApiGeneralController {
         return new ResponseEntity<>(settingsService.getGlobalSettings(), HttpStatus.OK);
     }
 
+    @PutMapping("/settings")
+    @PreAuthorize("hasAuthority('user:moderate')")
+    public ResponseEntity<SettingsResponse> editSettings(@RequestBody EditSettingsRequest editSettingsRequest) {
+        return new ResponseEntity<>(settingsService.saveGlobalSettings(editSettingsRequest), HttpStatus.OK);
+    }
+
     @GetMapping("/tag")
     public ResponseEntity<TagResponse> tag() {
-        return new ResponseEntity<>(tagServiceImpl.getAllTags(), HttpStatus.OK);
+        return new ResponseEntity<>(tagService.getAllTags(), HttpStatus.OK);
     }
 
     @GetMapping("/calendar")

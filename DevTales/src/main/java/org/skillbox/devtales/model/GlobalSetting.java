@@ -1,12 +1,16 @@
 package org.skillbox.devtales.model;
 
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
+@Accessors(chain = true)
 @Table(name = "global_settings")
 public class GlobalSetting {
 
