@@ -14,6 +14,7 @@ import org.skillbox.devtales.util.DateTimeUtil;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
@@ -62,7 +63,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private int getPostsCountByUserId(int userId){
-        return postRepository.findCountAllPostsByUserId(userId);
+        return postRepository.findCountAllPostsByUserId(userId).orElse(0);
     }
 
     private int getViewsCount(){
@@ -70,30 +71,30 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private int getViewsCountByUserId(int userId){
-        return postRepository.findViewsCountByUserId(userId);
+        return postRepository.findViewsCountByUserId(userId).orElse(0);
     }
 
     private int getLikesCount(){
-        return postVoteRepository.findCountLikes();
+        return postVoteRepository.findCountLikes().orElse(0);
     }
 
     private int getLikesCountByUserId(int userId){
-        return postVoteRepository.findCountLikesByUser(userId);
+        return postVoteRepository.findCountLikesByUser(userId).orElse(0);
     }
 
     private int getDislikesCount(){
-        return postVoteRepository.findCountDislikes();
+        return postVoteRepository.findCountDislikes().orElse(0);
     }
 
     private int getDislikesCountByUserId(int userId){
-        return postVoteRepository.findCountDislikesByUser(userId);
+        return postVoteRepository.findCountDislikesByUser(userId).orElse(0);
     }
 
     private long getFirstPublication(){
-        return DateTimeUtil.getTimestamp(postRepository.findFirstPost());
+        return DateTimeUtil.getTimestamp(postRepository.findFirstPost().orElse(LocalDateTime.MIN));
     }
 
     private long getFirstPublicationByUserId(int userId){
-        return DateTimeUtil.getTimestamp(postRepository.findFirstPostByUserId(userId));
+        return DateTimeUtil.getTimestamp(postRepository.findFirstPostByUserId(userId).orElse(LocalDateTime.MIN));
     }
 }

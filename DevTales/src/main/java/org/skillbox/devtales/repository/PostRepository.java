@@ -106,18 +106,18 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<String> findPostsByYear(int year);
 
     @Query("select count(p) from Post p where p.user.id = :id")
-    int findCountAllPostsByUserId(int id);
+    Optional<Integer> findCountAllPostsByUserId(int id);
 
     @Query("select sum(p.viewCount) from Post p ")
     int findViewsCount();
 
     @Query("select sum(p.viewCount) from Post p where p.user.id = :id")
-    int findViewsCountByUserId(int id);
+    Optional<Integer> findViewsCountByUserId(int id);
 
     @Query("select min(p.dateTime) from Post p ")
-    LocalDateTime findFirstPost();
+    Optional<LocalDateTime> findFirstPost();
 
     @Query("select min(p.dateTime) from Post p where p.user.id = :id")
-    LocalDateTime findFirstPostByUserId(int id);
+    Optional<LocalDateTime> findFirstPostByUserId(int id);
 
 }

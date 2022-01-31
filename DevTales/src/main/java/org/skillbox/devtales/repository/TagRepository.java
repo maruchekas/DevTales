@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -14,6 +15,6 @@ public interface TagRepository extends JpaRepository<Tag, Integer> {
     Set<Tag> findAllTags();
 
     @Query("select t from Tag t where t.name = :name")
-    Tag findByName(String name);
+    Optional<Tag> findByName(String name);
 
 }

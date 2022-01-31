@@ -3,7 +3,8 @@ package org.skillbox.devtales.api.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ModeratePostRequest {

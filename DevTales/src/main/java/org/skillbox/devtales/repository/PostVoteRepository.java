@@ -15,27 +15,27 @@ public interface PostVoteRepository extends JpaRepository<PostVote, Integer> {
 
     @Query("SELECT count(pv) FROM PostVote pv " +
             "WHERE pv.post.id = :id and pv.value = 1")
-    int findCountLikesOfPostById(@Param("id") int postId);
+    Optional<Integer> findCountLikesOfPostById(@Param("id") int postId);
 
     @Query("SELECT count(pv) FROM PostVote pv " +
             "WHERE pv.post.id = :id and pv.value = -1")
-    int findCountDislikesOfPostById(@Param("id") int postId);
+    Optional<Integer> findCountDislikesOfPostById(@Param("id") int postId);
 
     @Query("SELECT count(pv) FROM PostVote pv " +
             "WHERE pv.value = 1")
-    int findCountLikes();
+    Optional<Integer> findCountLikes();
 
     @Query("SELECT count(pv) FROM PostVote pv " +
             "WHERE pv.value = 1 AND pv.user.id = :id")
-    int findCountLikesByUser(int id);
+    Optional<Integer> findCountLikesByUser(int id);
 
     @Query("SELECT count(pv) FROM PostVote pv " +
             "WHERE pv.value = -1")
-    int findCountDislikes();
+    Optional<Integer> findCountDislikes();
 
     @Query("SELECT count(pv) FROM PostVote pv " +
             "WHERE pv.value = -1 AND pv.user.id = :id")
-    int findCountDislikesByUser(int id);
+    Optional<Integer> findCountDislikesByUser(int id);
 
     @Query("SELECT pv FROM PostVote pv " +
             "WHERE pv.post = :post AND pv.user = :user")

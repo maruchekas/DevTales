@@ -259,22 +259,20 @@ public class PostServiceImpl implements PostService {
         return errors;
     }
 
-    private Set<Tag> addTagsToPost(String[] tagsString) {
+    public Set<Tag> addTagsToPost(String[] tagsString) {
         Set<Tag> tags = new HashSet<>();
         for (String tagFromNewPost : tagsString
         ) {
-            Tag tag = tagRepository.findByName(tagFromNewPost);
-            if (tag != null) {
-                tags.add(tag);
-            } else {
-                Tag newTag = new Tag();
-                newTag.setName(tagFromNewPost);
-                tagRepository.save(newTag);
-                tags.add(newTag);
-            }
+            Tag tag = tagRepository.findByName(tagFromNewPost).orElseGet(() -> createNewTag(tagFromNewPost));
+            tags.add(tag);
         }
-
         return tags;
+    }
+
+    private Tag createNewTag(String tagName) {
+        Tag newTag = new Tag().setName(tagName);
+        tagRepository.save(newTag);
+        return newTag;
     }
 
     private PostDto getPostData(Post post) {
@@ -389,10 +387,10 @@ public class PostServiceImpl implements PostService {
     }
 
     private int getLikeCount(Post post) {
-        return postVoteRepository.findCountLikesOfPostById(post.getId());
+        return postVoteRepository.findCountLikesOfPostById(post.getId()).orElse(0);
     }
 
     private int getDislikeCount(Post post) {
-        return postVoteRepository.findCountDislikesOfPostById(post.getId());
+        return postVoteRepository.findCountDislikesOfPostById(post.getId()).orElse(0);
     }
 }

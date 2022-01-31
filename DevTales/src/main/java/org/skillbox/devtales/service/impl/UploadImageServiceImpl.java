@@ -121,7 +121,7 @@ public class UploadImageServiceImpl implements UploadImageService {
         final String type = image.getContentType();
         Map<String, String> errors = new HashMap<>();
 
-        if (fileSize > 1_572_864) {
+        if (fileSize > 5_242_880) {
             errors.put("image", "Размер файла превышает допустимый размер");
         }
 
