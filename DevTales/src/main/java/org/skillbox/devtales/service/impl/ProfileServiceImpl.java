@@ -89,19 +89,33 @@ public class ProfileServiceImpl implements ProfileService {
                 user.setPhoto(null);
             }
         } else if (editRequest.getPhoto() != null) {
+            if(validatePhoto((MultipartFile) editRequest.getPhoto()).isEmpty())
             user.setPhoto(imageService.uploadImgToCloudAndGetUrl((MultipartFile) editRequest.getPhoto(), principal));
         }
 
         return new EditProfileData().setUser(user).setErrors(errors);
     }
 
+    private Map<String, String> validatePhoto(MultipartFile photo){
+        Map<String, String> errors = new HashMap<>();
+        if (!Pattern.matches("image/(jpg|png|jpeg)", photo.getContentType())){
+            errors.put("content_type", "Неизвестный тип файла");
+        }
+        if (photo.getSize() > 5_242_880) {
+            errors.put("image", "Размер файла превышает допустимый размер");
+        }
+
+        return errors;
+    }
+
+
+}
+
     @Setter
     @Getter
     @RequiredArgsConstructor
     @Accessors(chain = true)
-    static class EditProfileData {
+    class EditProfileData {
         private User user;
         private Map<String, String> errors;
     }
-
-}

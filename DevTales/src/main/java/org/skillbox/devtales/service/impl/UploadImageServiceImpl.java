@@ -126,7 +126,7 @@ public class UploadImageServiceImpl implements UploadImageService {
         }
 
         if (fileSize == 0) {
-            errors.put("image", "Размер файла слишклм мал или файл не добавлен");
+            errors.put("image", "Размер файла слишком мал или файл не добавлен");
         }
 
         assert type != null;
