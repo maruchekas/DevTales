@@ -34,6 +34,8 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.skillbox.devtales.config.Constants.*;
+
 @Component
 @AllArgsConstructor
 public class PostServiceImpl implements PostService {
@@ -61,9 +63,9 @@ public class PostServiceImpl implements PostService {
 
     public PostDto getPostDtoById(int id, Principal principal) {
         Post post = principal == null ? postRepository.findPostById(id).orElseThrow(() ->
-                new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"))
+                new PostNotFoundException(String.format(POST_NOT_FOUND, id)))
                 : postRepository.findAnyPostById(id).orElseThrow(() ->
-                new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"));
+                new PostNotFoundException(String.format(POST_NOT_FOUND, id)));
         if (principal == null ||
                 !(userService.getUserByEmail(principal.getName()).getIsModerator() == 1
                         || userService.getUserByEmail(principal.getName()).getId() == post.getUser().getId())) {
@@ -126,8 +128,7 @@ public class PostServiceImpl implements PostService {
         Page<Post> pagePosts;
         String inStatus;
         byte isActive;
-        User user = userRepository.findByEmail(principal.getName()).orElseThrow(
-                () -> new UsernameNotFoundException("Пользователь не существует или заблокирован"));
+        User user = userService.getUserByEmail(principal.getName());
 
         switch (status) {
             case "pending" -> {
@@ -184,7 +185,7 @@ public class PostServiceImpl implements PostService {
         CommonResponse commonResponse = new CommonResponse();
         Map<String, String> errors = validateAddPostRequest(postRequest);
         Post post = postRepository.findAnyPostById(id).orElseThrow(
-                () -> new PostNotFoundException("Пост с id " + id + " не существует или заблокирован"));
+                () -> new PostNotFoundException(POST_NOT_FOUND));
 
         if (errors.size() > 0) {
             commonResponse.setResult(false);
@@ -219,7 +220,7 @@ public class PostServiceImpl implements PostService {
         String decision = moderatePostRequest.getDecision();
 
         Post post = postRepository.findAnyPostById(postId).orElseThrow(
-                () -> new PostNotFoundException("Пост с id " + postId + " не существует или заблокирован"));
+                () -> new PostNotFoundException(POST_NOT_FOUND));
         User moderator = userService.getUserByEmail(principal.getName());
 
         if (moderator.getIsModerator() == 1) {

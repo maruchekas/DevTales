@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
+import static org.skillbox.devtales.config.Constants.*;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/post")
@@ -101,13 +103,13 @@ public class ApiPostController {
     @PostMapping("/like")
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<CommonResponse> putLike(@RequestBody VoteRequest voteRequest, Principal principal){
-        return new ResponseEntity<>(voteService.castVote(voteRequest, 1, principal), HttpStatus.OK);
+        return new ResponseEntity<>(voteService.castVote(voteRequest, POSITIVE_VOTE, principal), HttpStatus.OK);
     }
 
     @PostMapping("/dislike")
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<CommonResponse> putDislike(@RequestBody VoteRequest voteRequest, Principal principal){
-        return new ResponseEntity<>(voteService.castVote(voteRequest, -1, principal), HttpStatus.OK);
+        return new ResponseEntity<>(voteService.castVote(voteRequest, NEGATIVE_VOTE, principal), HttpStatus.OK);
     }
 
 }

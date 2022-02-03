@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
 
+import static org.skillbox.devtales.config.Constants.WRONG_PARAMETER;
+
 @Component
 @RequiredArgsConstructor
 @Setter
@@ -48,7 +50,7 @@ public class SettingsServiceImpl implements SettingsService {
 
     private GlobalSetting getSittingByCode(String code) {
         return globalSettingRepository.findByCode(code).orElseThrow(
-                () -> new EntityNotFoundException("Неверно заданы параметры поиска"));
+                () -> new EntityNotFoundException(WRONG_PARAMETER));
     }
 
     private boolean getSettingValue(GlobalSetting setting) {

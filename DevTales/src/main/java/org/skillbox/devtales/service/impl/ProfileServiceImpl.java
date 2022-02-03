@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static org.skillbox.devtales.config.Constants.*;
+
 @Component
 @RequiredArgsConstructor
 @Setter
@@ -67,21 +69,21 @@ public class ProfileServiceImpl implements ProfileService {
 
         if (!StringUtils.isBlank(editRequest.getEmail()) && !editRequest.getEmail().equals(user.getEmail())) {
             if (!Pattern.matches(mailPattern, editRequest.getEmail())) {
-                errors.put("email", "Неверный формат email");
+                errors.put(EMAIL_ERR, EMAIL_FORMAT_ANSWER);
             }
             if (userRepository.findByEmail(editRequest.getEmail()).isPresent()) {
-                errors.put("email", "Этот e-mail уже зарегистрирован");
+                errors.put(EMAIL_ERR, EMAIL_ANSWER);
             } else user.setEmail(editRequest.getEmail());
         }
         if (!editRequest.getName().isBlank()) {
             if (!Pattern.matches(namePattern, editRequest.getName())
                     || editRequest.getName().length() < 2) {
-                errors.put("name", "Имя указано неверно");
+                errors.put(NAME_ERR, NAME_ANSWER);
             } else user.setName(editRequest.getName());
         }
         if (!StringUtils.isEmpty(editRequest.getPassword())) {
             if (editRequest.getPassword().trim().length() < 6) {
-                errors.put("password", "Пароль короче 6-ти символов");
+                errors.put(PASSWORD_ERR, PASSWORD_ANSWER);
             } else user.setPassword(encoder.encode(editRequest.getPassword()));
         }
         if (editRequest instanceof EditProfileData) {
@@ -99,10 +101,10 @@ public class ProfileServiceImpl implements ProfileService {
     private Map<String, String> validatePhoto(MultipartFile photo){
         Map<String, String> errors = new HashMap<>();
         if (!Pattern.matches("image/(jpg|png|jpeg)", photo.getContentType())){
-            errors.put("content_type", "Неизвестный тип файла");
+            errors.put(CONTENT_TYPE_ERR, CONTENT_TYPE_ANSWER);
         }
         if (photo.getSize() > 5_242_880) {
-            errors.put("image", "Размер файла превышает допустимый размер");
+            errors.put(IMAGE_ERR, IMAGE_OVERSIZE_ANSWER);
         }
 
         return errors;

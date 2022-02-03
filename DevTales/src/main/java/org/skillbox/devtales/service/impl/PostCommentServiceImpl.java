@@ -24,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.skillbox.devtales.config.Constants.*;
+
 @Component
 @AllArgsConstructor
 public class PostCommentServiceImpl implements PostCommentService {
@@ -32,15 +34,15 @@ public class PostCommentServiceImpl implements PostCommentService {
     CommentRepository commentRepository;
     UserRepository userRepository;
 
-    public ResponseEntity<ParentResponse> addCommentToPost(PostCommentRequest postCommentRequest, Principal principal){
+    public ResponseEntity<ParentResponse> addCommentToPost(PostCommentRequest postCommentRequest, Principal principal) {
         PostComment postComment = new PostComment();
         int parentId = postCommentRequest.getParentId();
         CommonResponse commonResponse = new CommonResponse();
         Map<String, String> errors = validateAddPostCommentRequest(postCommentRequest);
 
-        if (parentId != 0){
-        PostComment parent = getPostCommentById(parentId);
-        postComment.setParent(parent);
+        if (parentId != 0) {
+            PostComment parent = getPostCommentById(parentId);
+            postComment.setParent(parent);
         }
 
         if (errors.size() > 0) {
@@ -60,13 +62,13 @@ public class PostCommentServiceImpl implements PostCommentService {
         return new ResponseEntity<>(new PostCommentResponse().setId(postComment.getId()), HttpStatus.OK);
     }
 
-    private Map<String, String> validateAddPostCommentRequest(PostCommentRequest postCommentRequest){
+    private Map<String, String> validateAddPostCommentRequest(PostCommentRequest postCommentRequest) {
         final String text = postCommentRequest.getText();
         final String simplePostText = HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, text.length());
         Map<String, String> errors = new HashMap<>();
 
         if (simplePostText.length() < 20) {
-            errors.put("text", "Текст комментария не задан или слишком короткий");
+            errors.put(TEXT_ERR, TEXT_COMMENT_ANSWER);
         }
 
         return errors;
@@ -74,17 +76,17 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     private PostComment getPostCommentById(int id) {
         return commentRepository.findById(id)
-                .orElseThrow(() -> new CommentNotFoundException("Comment with id " + id + " not found"));
+                .orElseThrow(() -> new CommentNotFoundException(String.format(COMMENT_NOT_FOUND, id)));
     }
 
     private Post getPostById(int id) {
         return postRepository.findPostById(id)
-                .orElseThrow(() -> new CommentNotFoundException("Post with id " + id + " not found or inactive"));
+                .orElseThrow(() -> new CommentNotFoundException(String.format(POST_NOT_FOUND, id)));
     }
 
     private User getUserByEmail(String userName) {
         return userRepository.findByEmail(userName)
-                .orElseThrow(() -> new UsernameNotFoundException("User with email " + userName + " not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, userName)));
     }
 
 }

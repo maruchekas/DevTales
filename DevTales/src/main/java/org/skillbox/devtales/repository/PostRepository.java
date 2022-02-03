@@ -49,7 +49,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Page<Post> findBestPostsSortedByLikeCount(Pageable pageable);
 
     @Query(HEAD_QUERY +
-            "group by p order by p.comments.size desc")
+            "group by p order by size(p.comments) desc")
     Page<Post> findPopularPostsSortedByCommentsCount(Pageable pageable);
 
     @Query(HEAD_QUERY +

@@ -24,6 +24,9 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
+
+import static org.skillbox.devtales.config.Constants.*;
 
 @Component
 @RequiredArgsConstructor
@@ -121,17 +124,17 @@ public class UploadImageServiceImpl implements UploadImageService {
         final String type = image.getContentType();
         Map<String, String> errors = new HashMap<>();
 
-        if (fileSize > 5_242_880) {
-            errors.put("image", "Размер файла превышает допустимый размер");
+        if (fileSize > IMG_SIZE_LIMIT) {
+            errors.put(IMAGE_ERR, IMAGE_OVERSIZE_ANSWER);
         }
 
         if (fileSize == 0) {
-            errors.put("image", "Размер файла слишком мал или файл не добавлен");
+            errors.put(IMAGE_ERR, IMAGE_NULLSIZE_ANSWER);
         }
 
         assert type != null;
-        if (!type.startsWith("image/")) {
-            errors.put("content_type", "Неизвестный тип файла");
+        if (!Pattern.matches("image/(jpg|png|jpeg)", type)) {
+            errors.put(CONTENT_TYPE_ERR, CONTENT_TYPE_ANSWER);
         }
 
         return errors;
