@@ -47,6 +47,10 @@ public final class Constants {
     public static final int POSITIVE_VOTE = 1;
     public static final int NEGATIVE_VOTE = -1;
 
+    public static final String NAME_FORMAT_PATTERN = "^[a-zа-яA-ZА-Я0-9 _.-]*$";
+    public static final String EMAIL_FORMAT_PATTERN
+            = "^[\\w]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+
 
     private Constants() {
     }

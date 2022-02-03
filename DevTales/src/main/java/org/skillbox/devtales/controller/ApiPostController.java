@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
-import static org.skillbox.devtales.config.Constants.*;
+import static org.skillbox.devtales.config.Constants.NEGATIVE_VOTE;
+import static org.skillbox.devtales.config.Constants.POSITIVE_VOTE;
 
 @RestController
 @AllArgsConstructor
