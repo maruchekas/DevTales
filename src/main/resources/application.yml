@@ -20,8 +20,8 @@ spring:
     host: ${MAIL_HOST}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
-    port: ${MAIL_PORT}
-    protocol: ${MAIL_PROTOCOL}
+    port: 465
+    protocol: smtps
 mail:
   debug: true
 cloudinary:
@@ -30,9 +30,9 @@ cloudinary:
   api-secret: ${API_SECRET}
 
 blog:
-  title: ${TITLE}
-  subtitle: ${SUBTITLE}
-  phone: ${PHONE}
-  email: ${EMAIL}
-  copyright: ${COPYRIGHT}
-  copyrightFrom: ${COPYRIGHT_FROM}
+  title: DevTales
+  subtitle: Сказочки разработчиков
+  phone: +7 (987) 654-32-10
+  email: alexandr.maruchek@gmail.com
+  copyright: Alexandr Maruchek
+  copyrightFrom: 2021
