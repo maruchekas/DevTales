@@ -19,7 +19,6 @@
 >
 > Maven - сборщик проекта
 >
-> MockMVC
 
 Требования к окружению и компонентам проекта:
 
@@ -35,8 +34,8 @@
 
 
 #### Описание
-![N|Solid](https://res.cloudinary.com/devtales/image/upload/c_scale,w_600/v1644228078/Screenshot_3_chwoe0.png)
 ##### Главная страница
+![N|Solid](https://res.cloudinary.com/devtales/image/upload/c_scale,w_600/v1644228078/Screenshot_3_chwoe0.png)
 На главной странице блока отображаются все прошедшие модерацию посты. Посты разделены по вкладкам: новые, самые обсуждаемые, лучшие, старые с соответсвующей сортировкой.
 ![N|Solid](https://res.cloudinary.com/devtales/image/upload/v1644231887/Screenshot_4_u93urp.png)
 ##### ТЕМЫ
@@ -47,6 +46,9 @@
 Во вкладке календарь отображена история публикации постов. Из календаря можно перейти к поставм, опубликованным в конкретную дату.
 
 ![N|Solid](https://res.cloudinary.com/devtales/image/upload/c_scale,h_200/v1644232105/Screenshot_6_eoc5if.png)
+#### Поиск
+Реализован регистронезависимый поиск публикаций по тексту.
+
 ##### Регистрация и авторизация
 Регстрация пользователя осуществляется по email и паролю. Для определения человека используется капча.
 Вход в систему осуществляется при помощи почтового ящика и пароля.
@@ -78,19 +80,17 @@ $ cp .env_example .env
 ```
 
 Задать необходимые значения переменным
-- `JDBC_DATABASE_URL*` путь к базе данных с параметрами
-- `JDBC_DATABASE_USERNAME*` пользователь
-- `JDBC_DATABASE_PASSWORD*` пароль доступа к БД
-- `BASIC_URL*` любой сервис генерации изображений. Например: https://robohash.org/
-- `AVATAR_CONFIG*` парметры генерации изображения. Для robohash.org/ пример =.png?size=360x360&set=set
-- `CLOUD_NAME*` имя облака на cloudinary
-- `API_KEY*` ключ для cloudinary
-- `API_SECRET*` секретный ключ cloudinary
-- `MAIL_HOST*` хост почтового сервиса
-- `MAIL_USERNAME*` почтовый ящик для отправки сообщений
-- `MAIL_PASSWORD*` пароль от почтового ящика
-- `MAIL_PORT*` =465
-- `MAIL_PROTOCOL*` =smtps
+- `JDBC_DATABASE_URL` путь к базе данных с параметрами
+- `JDBC_DATABASE_USERNAME` пользователь
+- `JDBC_DATABASE_PASSWORD` пароль доступа к БД
+- `BASIC_URL` любой сервис генерации изображений. Например: https://robohash.org/
+- `AVATAR_CONFIG` парметры генерации изображения. Для robohash.org/ пример =.png?size=360x360&set=set
+- `CLOUD_NAME` имя облака на cloudinary
+- `API_KEY` ключ для cloudinary
+- `API_SECRET` секретный ключ cloudinary
+- `MAIL_HOST` хост почтового сервиса
+- `MAIL_USERNAME` почтовый ящик для отправки сообщений
+- `MAIL_PASSWORD` пароль от почтового ящика
 
 в файле `.env`.
 
@@ -102,16 +102,15 @@ $ set -a; . ./.env; java -jar target/devtales.jar; set +a
 
 Или в IntelliJ IDEA:
 добавить в настройки конфигурации файл с переменными среды окружения
+
 `Edit Configuration / EnvFile / Enable EnvFile / + .env`.
 
-Поект развернут на сервисе Heroku.
+### Поект развернут на сервисе [![Build Status](https://res.cloudinary.com/devtales/image/upload/c_scale,w_72/v1644232738/1_oybKF55Eqkaq1bo-tMRNqg_znhrrg.jpg)](https://maruchek-blogengine-java.herokuapp.com/)
 - [DevTales] - Рассказы разработчиков
 
-  [![Build Status](https://res.cloudinary.com/devtales/image/upload/c_scale,w_96/v1644232738/1_oybKF55Eqkaq1bo-tMRNqg_znhrrg.jpg)](https://maruchek-blogengine-java.herokuapp.com/)
 
 
-
-> Alexandr Maruchek alexandr.maruchek@gmail.com
+> author: alexandr.maruchek@gmail.com
 
 
 [DevTales]: <https://maruchek-blogengine-java.herokuapp.com/>
