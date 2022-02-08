@@ -1,9 +1,19 @@
+server:
+  port: ${PORT:8080}
 spring:
+  application:
+    name: DevTales
   datasource:
     url: ${JDBC_DATABASE_URL}
     username: ${JDBC_DATABASE_USERNAME}
     password: ${JDBC_DATABASE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  boot:
+    admin:
+      client:
+        url: ${ADMIN_SERVER_URL}
+        username: ${ADMIN_NAME}
+        password: ${ADMIN_PASSWORD}
   jpa:
     hibernate.ddl-auto: none
     show-sql: false
@@ -22,6 +32,16 @@ spring:
     password: ${MAIL_PASSWORD}
     port: 465
     protocol: smtps
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  security.enabled: false
+
 mail:
   debug: true
 cloudinary:
