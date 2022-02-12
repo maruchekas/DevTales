@@ -5,13 +5,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.skillbox.devtales.api.request.EditSettingsRequest;
 import org.skillbox.devtales.api.response.SettingsResponse;
+import org.skillbox.devtales.exception.UnAuthorisedUserException;
+import org.skillbox.devtales.exception.UserAccessDeniedException;
 import org.skillbox.devtales.model.GlobalSetting;
+import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.model.enums.SettingCode;
 import org.skillbox.devtales.repository.GlobalSettingRepository;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
 
+import java.security.Principal;
+
+import static org.skillbox.devtales.config.Constants.ACCESS_DENIED;
 import static org.skillbox.devtales.config.Constants.WRONG_PARAMETER;
 
 @Component
@@ -21,6 +27,7 @@ import static org.skillbox.devtales.config.Constants.WRONG_PARAMETER;
 public class SettingsService {
 
     private final GlobalSettingRepository globalSettingRepository;
+    private final AuthUserService userService;
 
     public SettingsResponse getGlobalSettings() {
 
@@ -30,7 +37,12 @@ public class SettingsService {
                 .setStatisticsIsPublic(getSettingValue(getSittingByCode(SettingCode.STATISTICS_IS_PUBLIC.name())));
     }
 
-    public SettingsResponse saveGlobalSettings(EditSettingsRequest editSettingsRequest) {
+    public SettingsResponse saveGlobalSettings(EditSettingsRequest editSettingsRequest, Principal principal) throws UserAccessDeniedException {
+        User user = userService.getUserByEmail(principal.getName());
+        if (user.getIsModerator() != 1){
+            throw new UserAccessDeniedException();
+        }
+
         GlobalSetting modeSetting = getSittingByCode(SettingCode.MULTIUSER_MODE.name());
         modeSetting
                 .setValue(editSettingsRequest.isMultiuserMode() ? "YES" : "NO");

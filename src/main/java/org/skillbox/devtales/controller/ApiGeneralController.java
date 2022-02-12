@@ -6,6 +6,8 @@ import org.skillbox.devtales.api.response.CalendarResponse;
 import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.skillbox.devtales.api.response.TagResponse;
+import org.skillbox.devtales.exception.UnAuthorisedUserException;
+import org.skillbox.devtales.exception.UserAccessDeniedException;
 import org.skillbox.devtales.service.CalendarService;
 import org.skillbox.devtales.service.SettingsService;
 import org.skillbox.devtales.service.TagService;
@@ -42,8 +44,9 @@ public class ApiGeneralController {
 
     @PutMapping("/settings")
     @PreAuthorize("hasAuthority('user:moderate')")
-    public ResponseEntity<SettingsResponse> editSettings(@RequestBody EditSettingsRequest editSettingsRequest) {
-        return new ResponseEntity<>(settingsService.saveGlobalSettings(editSettingsRequest), HttpStatus.OK);
+    public ResponseEntity<SettingsResponse> editSettings(
+            @RequestBody EditSettingsRequest editSettingsRequest, Principal principal) throws UserAccessDeniedException {
+        return new ResponseEntity<>(settingsService.saveGlobalSettings(editSettingsRequest, principal), HttpStatus.OK);
     }
 
     @GetMapping("/tag")

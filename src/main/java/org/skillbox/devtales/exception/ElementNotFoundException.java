@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.persistence.EntityNotFoundException;
 
-@ResponseStatus(code = HttpStatus.NOT_FOUND)
-public class CommentNotFoundException extends EntityNotFoundException {
-    public CommentNotFoundException(String message) {
+@ResponseStatus(code = HttpStatus.BAD_REQUEST)
+public class ElementNotFoundException extends EntityNotFoundException {
+    public ElementNotFoundException(String message) {
         super(message);
     }
 }

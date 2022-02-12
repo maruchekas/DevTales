@@ -5,17 +5,16 @@ import org.skillbox.devtales.api.request.PostCommentRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.ParentResponse;
 import org.skillbox.devtales.api.response.PostCommentResponse;
-import org.skillbox.devtales.exception.CommentNotFoundException;
+import org.skillbox.devtales.exception.ElementNotFoundException;
+import org.skillbox.devtales.exception.UnAuthorisedUserException;
 import org.skillbox.devtales.model.Post;
 import org.skillbox.devtales.model.PostComment;
-import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.repository.CommentRepository;
 import org.skillbox.devtales.repository.PostRepository;
 import org.skillbox.devtales.repository.UserRepository;
 import org.skillbox.devtales.util.HtmlToSimpleTextUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Principal;
@@ -29,11 +28,16 @@ import static org.skillbox.devtales.config.Constants.*;
 @AllArgsConstructor
 public class PostCommentService {
 
+    AuthUserService userService;
     PostRepository postRepository;
     CommentRepository commentRepository;
     UserRepository userRepository;
 
-    public ResponseEntity<ParentResponse> addCommentToPost(PostCommentRequest postCommentRequest, Principal principal) {
+    public ResponseEntity<ParentResponse> addCommentToPost(PostCommentRequest postCommentRequest, Principal principal) throws UnAuthorisedUserException {
+
+        if (principal == null){
+            throw new UnAuthorisedUserException();
+        }
         PostComment postComment = new PostComment();
         int parentId = postCommentRequest.getParentId();
         CommonResponse commonResponse = new CommonResponse();
@@ -53,7 +57,7 @@ public class PostCommentService {
 
         postComment.setPost(getPostById(postCommentRequest.getPostId()));
         postComment.setText(postCommentRequest.getText());
-        postComment.setUser(getUserByEmail(principal.getName()));
+        postComment.setUser(userService.getUserByEmail(principal.getName()));
         postComment.setTime(LocalDateTime.now());
 
         commentRepository.save(postComment);
@@ -75,17 +79,12 @@ public class PostCommentService {
 
     private PostComment getPostCommentById(int id) {
         return commentRepository.findById(id)
-                .orElseThrow(() -> new CommentNotFoundException(String.format(COMMENT_NOT_FOUND, id)));
+                .orElseThrow(() -> new ElementNotFoundException(String.format(COMMENT_NOT_FOUND, id)));
     }
 
     private Post getPostById(int id) {
         return postRepository.findPostById(id)
-                .orElseThrow(() -> new CommentNotFoundException(String.format(POST_NOT_FOUND, id)));
-    }
-
-    private User getUserByEmail(String userName) {
-        return userRepository.findByEmail(userName)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, userName)));
+                .orElseThrow(() -> new ElementNotFoundException(String.format(POST_NOT_FOUND, id)));
     }
 
 }

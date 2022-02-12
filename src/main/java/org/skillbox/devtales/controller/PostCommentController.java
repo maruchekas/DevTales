@@ -3,6 +3,7 @@ package org.skillbox.devtales.controller;
 import lombok.AllArgsConstructor;
 import org.skillbox.devtales.api.request.PostCommentRequest;
 import org.skillbox.devtales.api.response.ParentResponse;
+import org.skillbox.devtales.exception.UnAuthorisedUserException;
 import org.skillbox.devtales.service.PostCommentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +23,7 @@ public class PostCommentController {
 
     @PostMapping("/comment")
     @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<ParentResponse> addComment(@RequestBody PostCommentRequest postCommentRequest, Principal principal){
+    public ResponseEntity<ParentResponse> addComment(@RequestBody PostCommentRequest postCommentRequest, Principal principal) throws UnAuthorisedUserException {
         return postCommentService.addCommentToPost(postCommentRequest, principal);
     }
 }
