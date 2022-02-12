@@ -6,6 +6,7 @@ import org.skillbox.devtales.api.request.VoteRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostDto;
+import org.skillbox.devtales.exception.UnAuthorisedUserException;
 import org.skillbox.devtales.service.PostService;
 import org.skillbox.devtales.service.VoteService;
 import org.springframework.http.HttpHeaders;
@@ -29,13 +30,13 @@ public class ApiPostController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PostDto> getOnePostById(@PathVariable(value = "id") int id, Principal principal) {
-        return ResponseEntity.ok(postService.getPostDtoById(id, principal));
+        return ResponseEntity.ok(postService.getPostById(id, principal));
     }
 
     @GetMapping("")
     public ResponseEntity<PostResponse> getPageOfPosts(
-            @RequestParam(defaultValue = "offset") int offset,
-            @RequestParam(defaultValue = "limit") int limit,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "recent") String mode) {
 
         return new ResponseEntity<>(postService.getPosts(offset, limit, mode), new HttpHeaders(), HttpStatus.OK);
@@ -43,8 +44,8 @@ public class ApiPostController {
 
     @GetMapping("/search")
     public ResponseEntity<PostResponse> getPostsByText(
-            @RequestParam(defaultValue = "offset") int offset,
-            @RequestParam(defaultValue = "limit") int limit,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
             String query) {
 
         return new ResponseEntity<>(postService.searchPostsByText(offset, limit, query), HttpStatus.OK);
@@ -52,8 +53,8 @@ public class ApiPostController {
 
     @GetMapping("/byTag")
     public ResponseEntity<PostResponse> getPostsByTag(
-            @RequestParam(defaultValue = "offset") int offset,
-            @RequestParam(defaultValue = "limit") int limit,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
             String tag) {
 
         return new ResponseEntity<>(postService.searchPostsByTag(offset, limit, tag), HttpStatus.OK);
@@ -61,8 +62,8 @@ public class ApiPostController {
 
     @GetMapping("/byDate")
     public ResponseEntity<PostResponse> getPostsByDate(
-            @RequestParam(defaultValue = "offset") int offset,
-            @RequestParam(defaultValue = "limit") int limit,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
             String date) {
         return new ResponseEntity<>(postService.searchPostsByDate(offset, limit, date), HttpStatus.OK);
     }
@@ -70,8 +71,8 @@ public class ApiPostController {
     @GetMapping("/moderation")
     @PreAuthorize("hasAuthority('user:moderate')")
     public ResponseEntity<PostResponse> getPostsForModeration(
-            @RequestParam(defaultValue = "offset") int offset,
-            @RequestParam(defaultValue = "limit") int limit,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
             String status) {
         return new ResponseEntity<>(postService.getPostsForModeration(offset, limit, status), HttpStatus.OK);
     }
@@ -79,8 +80,8 @@ public class ApiPostController {
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('user:write')")
     public ResponseEntity<PostResponse> getMyPosts(
-            @RequestParam(defaultValue = "offset") int offset,
-            @RequestParam(defaultValue = "limit") int limit,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "10") int limit,
             String status,
             Principal principal) {
         return new ResponseEntity<>(postService.getMyPosts(offset, limit, status, principal), HttpStatus.OK);
@@ -102,14 +103,18 @@ public class ApiPostController {
     }
 
     @PostMapping("/like")
-    @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<CommonResponse> putLike(@RequestBody VoteRequest voteRequest, Principal principal){
+    public ResponseEntity<CommonResponse> putLike(@RequestBody VoteRequest voteRequest, Principal principal) {
+        if (principal == null){
+            return new ResponseEntity<>(new CommonResponse().setResult(false), HttpStatus.OK);
+        }
         return new ResponseEntity<>(voteService.castVote(voteRequest, POSITIVE_VOTE, principal), HttpStatus.OK);
     }
 
     @PostMapping("/dislike")
-    @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<CommonResponse> putDislike(@RequestBody VoteRequest voteRequest, Principal principal){
+    public ResponseEntity<CommonResponse> putDislike(@RequestBody VoteRequest voteRequest, Principal principal) throws UnAuthorisedUserException {
+        if (principal == null){
+            throw  new UnAuthorisedUserException();
+        }
         return new ResponseEntity<>(voteService.castVote(voteRequest, NEGATIVE_VOTE, principal), HttpStatus.OK);
     }
 

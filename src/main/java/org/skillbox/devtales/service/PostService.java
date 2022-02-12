@@ -15,9 +15,13 @@ import org.skillbox.devtales.model.PostComment;
 import org.skillbox.devtales.model.Tag;
 import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.model.enums.ModerationStatus;
-import org.skillbox.devtales.repository.*;
+import org.skillbox.devtales.repository.CommentRepository;
+import org.skillbox.devtales.repository.PostRepository;
+import org.skillbox.devtales.repository.PostVoteRepository;
+import org.skillbox.devtales.repository.TagRepository;
 import org.skillbox.devtales.util.DateTimeUtil;
 import org.skillbox.devtales.util.HtmlToSimpleTextUtil;
+import org.skillbox.devtales.util.KbLayerInverter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +30,9 @@ import org.springframework.stereotype.Component;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Pattern;
 
-import static org.skillbox.devtales.config.Constants.POST_NOT_FOUND;
+import static org.skillbox.devtales.config.Constants.*;
 
 @Component
 @AllArgsConstructor
@@ -38,7 +43,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostVoteRepository postVoteRepository;
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final TagRepository tagRepository;
 
     public PostResponse getPosts(int offset, int limit, String mode) {
@@ -48,15 +52,15 @@ public class PostService {
         switch (mode) {
             case "popular" -> pagePosts = postRepository.findPopularPostsSortedByCommentsCount(pageable);
             case "best" -> pagePosts = postRepository.findBestPostsSortedByLikeCount(pageable);
-            case "early" -> pagePosts = postRepository.findNewPostsSortedByDate(pageable);
+            case "early" -> pagePosts = postRepository.findEarlyPostsSortedByDate(pageable);
             default -> pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
         }
 
         return getPostResponseFromPostsPage(pagePosts);
     }
 
-    public PostDto getPostDtoById(int id, Principal principal) {
-        Post post = principal == null ? postRepository.findPostById(id).orElseThrow(() ->
+    public PostDto getPostById(int id, Principal principal) {
+        Post post = (principal == null) ? postRepository.findPostById(id).orElseThrow(() ->
                 new PostNotFoundException(String.format(POST_NOT_FOUND, id)))
                 : postRepository.findAnyPostById(id).orElseThrow(() ->
                 new PostNotFoundException(String.format(POST_NOT_FOUND, id)));
@@ -79,9 +83,12 @@ public class PostService {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         Page<Post> pagePosts;
 
-        if (text.trim().equals("")) {
-            pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
-        } else pagePosts = postRepository.findPostsByText(text, pageable);
+        pagePosts = postRepository.findPostsByText(text, pageable);
+
+        if (pagePosts.getTotalElements() == 0){
+            text = new KbLayerInverter().invertString(text);
+            pagePosts = postRepository.findPostsByText(text, pageable);
+        }
 
         return getPostResponseFromPostsPage(pagePosts);
     }
@@ -92,7 +99,7 @@ public class PostService {
 
         if (tag.trim().equals("")) {
             pagePosts = postRepository.findRecentPostsSortedByDate(pageable);
-        } else pagePosts = postRepository.findPostsByTags(tag, pageable);
+        } else pagePosts = postRepository.findPostsByTag(tag, pageable);
 
         return getPostResponseFromPostsPage(pagePosts);
     }
@@ -148,7 +155,7 @@ public class PostService {
     public CommonResponse addPost(PostRequest postRequest, Principal principal) {
 
         CommonResponse commonResponse = new CommonResponse();
-        Map<String, String> errors = validateAddPostRequest(postRequest);
+        Map<String, String> errors = validateAddPostRequest(postRequest, principal);
 
         if (errors.size() > 0) {
             commonResponse.setResult(false);
@@ -157,25 +164,15 @@ public class PostService {
             return commonResponse;
         }
 
-        Set<Tag> tags = addTagsToPost(postRequest.getTags());
         commonResponse.setResult(true);
-        Post post = new Post()
-                .setTitle(postRequest.getTitle())
-                .setText(postRequest.getText())
-                .setIsActive(postRequest.getActive())
-                .setDateTime(getCorrectPostTime(postRequest.getTimestamp()))
-                .setUser(userRepository.findByEmail(principal.getName()).orElseThrow())
-                .setViewCount(0)
-                .setModerationStatus(getCorrectModerationStatus());
-        post.setTags(tags);
-        postRepository.save(post);
+        createPost(postRequest, principal);
 
         return commonResponse;
     }
 
     public CommonResponse editPost(int id, PostRequest postRequest, Principal principal) {
         CommonResponse commonResponse = new CommonResponse();
-        Map<String, String> errors = validateAddPostRequest(postRequest);
+        Map<String, String> errors = validateAddPostRequest(postRequest, principal);
         Post post = postRepository.findAnyPostById(id).orElseThrow(
                 () -> new PostNotFoundException(POST_NOT_FOUND));
 
@@ -188,20 +185,13 @@ public class PostService {
 
         post.setDateTime(getCorrectPostTime(postRequest.getTimestamp()));
         post.setModerationStatus(getModerationStatusForEditedPost(principal.getName(), post.getModerationStatus()));
-
-        if (postRequest.getTitle() != null) {
-            post.setTitle(postRequest.getTitle());
-        }
-        if (postRequest.getText() != null) {
-            post.setText(postRequest.getText());
-        }
-        if (postRequest.getTags().length != 0) {
-            Set<Tag> tags = addTagsToPost(postRequest.getTags());
-            post.setTags(tags);
-        }
+        post.setTitle(postRequest.getTitle());
+        post.setText(postRequest.getText());
         post.setIsActive(postRequest.getActive());
-        commonResponse.setResult(true);
+        post.setTags(addTagsToPost(postRequest.getTags()));
         postRepository.save(post);
+
+        commonResponse.setResult(true);
 
         return commonResponse;
     }
@@ -235,21 +225,44 @@ public class PostService {
         return commonResponse;
     }
 
-    private Map<String, String> validateAddPostRequest(PostRequest postRequest) {
+    private Map<String, String> validateAddPostRequest(PostRequest postRequest, Principal principal) {
         final String title = postRequest.getTitle();
         final String text = postRequest.getText();
         final String simplePostText = HtmlToSimpleTextUtil.getSimpleTextFromHtml(text, text.length());
         Map<String, String> errors = new HashMap<>();
 
+        if (principal == null) {
+            errors.put(USER_ERR, USER_NOT_AUTHORISED);
+        }
+
         if (title.length() < 3) {
-            errors.put("title", "Заголовок не установлен");
+            errors.put(TITLE_ERR, TITLE_ANSWER);
         }
 
         if (simplePostText.length() < 50) {
-            errors.put("text", "Текст публикации слишком короткий");
+            errors.put(TEXT_ERR, TEXT_ANSWER);
         }
 
         return errors;
+    }
+
+    private void createPost(PostRequest postRequest, Principal principal) {
+        Post post = new Post()
+                .setTitle(postRequest.getTitle())
+                .setText(postRequest.getText())
+                .setIsActive(postRequest.getActive())
+                .setDateTime(getCorrectPostTime(postRequest.getTimestamp()))
+                .setUser(userService.getUserByEmail(principal.getName()))
+                .setViewCount(0)
+                .setModerationStatus(getCorrectModerationStatus());
+        post.setTags(addTagsToPost(postRequest.getTags()));
+        postRepository.save(post);
+    }
+
+    private Tag createNewTag(String tagName) {
+        Tag newTag = new Tag().setName(tagName);
+        tagRepository.save(newTag);
+        return newTag;
     }
 
     public Set<Tag> addTagsToPost(String[] tagsString) {
@@ -260,12 +273,6 @@ public class PostService {
             tags.add(tag);
         }
         return tags;
-    }
-
-    private Tag createNewTag(String tagName) {
-        Tag newTag = new Tag().setName(tagName);
-        tagRepository.save(newTag);
-        return newTag;
     }
 
     private PostDto getPostData(Post post) {
@@ -286,7 +293,7 @@ public class PostService {
         return postData;
     }
 
-    public Post getPostById(int id){
+    public Post getPostById(int id) {
         return postRepository.findAnyPostById(id).orElseThrow(
                 () -> new PostNotFoundException("Post with id " + id + " not found"));
     }
@@ -319,7 +326,7 @@ public class PostService {
                 : DateTimeUtil.getLocalDateTime(timestamp);
     }
 
-    private ModerationStatus getCorrectModerationStatus(){
+    private ModerationStatus getCorrectModerationStatus() {
         return settingsService.getGlobalSettings().isPostPremoderation()
                 ? ModerationStatus.NEW
                 : ModerationStatus.ACCEPTED;
