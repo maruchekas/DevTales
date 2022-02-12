@@ -36,7 +36,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query(HEAD_QUERY +
             "order by p.dateTime asc ")
-    Page<Post> findNewPostsSortedByDate(Pageable pageable);
+    Page<Post> findEarlyPostsSortedByDate(Pageable pageable);
 
     @Query(value = "select * " +
             "from posts p " +
@@ -65,7 +65,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "where p.is_active = 1 and p.moderation_status = 'ACCEPTED' and p.date_time <= current_time " +
             "and t.name = :tag " +
             "group by p.id ", nativeQuery = true)
-    Page<Post> findPostsByTags(String tag, Pageable pageable);
+    Page<Post> findPostsByTag(String tag, Pageable pageable);
 
     @Query(value = "select * " +
             "from posts p " +

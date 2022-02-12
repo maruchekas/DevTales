@@ -18,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,10 +43,7 @@ public class AuthUserControllerTest extends AbstractTest {
     GlobalSettingRepository globalSettingRepository;
 
     private User user;
-    private User authUser;
     private CaptchaCode captcha;
-
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
     @BeforeEach
     public void setup() {
@@ -64,6 +59,7 @@ public class AuthUserControllerTest extends AbstractTest {
                 .setEmail(email)
                 .setRegTime(reg_date)
                 .setCode(conf_code)
+                .setIsModerator(0)
                 .setPassword(password);
 
         captcha = new CaptchaCode()
@@ -80,85 +76,13 @@ public class AuthUserControllerTest extends AbstractTest {
     }
 
     @Test
-    void getCheckWithoutPrincipal() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/auth/check")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(false));
-    }
-
-    @Test
-    void loginTest() throws  Exception {
-        AuthRequest authRequest = new AuthRequest();
-        authRequest.setEmail(user.getEmail());
-        authRequest.setPassword(user.getPassword());
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(authRequest)))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true)).andReturn();
-    }
-
-    @Test
-    void badLoginTest() throws  Exception {
-        AuthRequest authRequest = new AuthRequest();
-        authRequest.setEmail(user.getEmail());
-        authRequest.setPassword("111111");
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(authRequest)))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(false)).andReturn();
-
-    }
-
-
-
-    @Test
-    @WithMockUser(username = "test@test.ru", authorities = "user:write")
-    void getCheckWithPrincipal() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/auth/check")
-                        .principal(() -> "test@test.ru")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.user.id")
-                        .value(userRepository.findByEmail("test@test.ru").get().getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.user.moderation")
-                        .value(false))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.user.moderationCount")
-                        .value(0));
-    }
-
-    @Test
-    @WithMockUser(username = "test@test.ru", authorities = "user:write")
-    void logoutTest() throws  Exception {
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get("/api/auth/logout")
-                        .principal(() -> "test@test.ru")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true)).andReturn();
-
-    }
-
-    @Test
     void registerTest() throws Exception {
-        RegisterRequest registerRequest = new RegisterRequest();
-        registerRequest.setEmail(user.getEmail());
-        registerRequest.setName(user.getName());
-        registerRequest.setPassword(user.getPassword());
-        registerRequest.setCaptcha(captcha.getCode());
-        registerRequest.setCaptchaSecret(captcha.getSecretCode());
+        RegisterRequest registerRequest = new RegisterRequest()
+                .setEmail(user.getEmail())
+                .setName(user.getName())
+                .setPassword(user.getPassword())
+                .setCaptcha(captcha.getCode())
+                .setCaptchaSecret(captcha.getSecretCode());
 
         mockMvc.perform(MockMvcRequestBuilders
                         .post("/api/auth/register")
@@ -167,15 +91,8 @@ public class AuthUserControllerTest extends AbstractTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
-    }
 
-    @Test
-    void postRegister() throws Exception {
-        Optional<GlobalSetting> multiuser_mode = globalSettingRepository.findByCode("MULTIUSER_MODE");
-        multiuser_mode.get().setValue("YES");
-        globalSettingRepository.save(multiuser_mode.get());
-
-        RegisterRequest registerRequest = new RegisterRequest()
+        registerRequest
                 .setEmail("testov1@test.ru")
                 .setName("Testov")
                 .setPassword("Testov321")
@@ -190,6 +107,20 @@ public class AuthUserControllerTest extends AbstractTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true)).andReturn();
         userRepository.delete(userRepository.findByEmail("testov1@test.ru").get());
+    }
+
+    @Test
+    void badRegisterTest() throws Exception {
+        Optional<GlobalSetting> multiuser_mode = globalSettingRepository.findByCode("MULTIUSER_MODE");
+        multiuser_mode.get().setValue("YES");
+        globalSettingRepository.save(multiuser_mode.get());
+
+        RegisterRequest registerRequest = new RegisterRequest()
+                .setEmail("testov1@test.ru")
+                .setName("Testov")
+                .setPassword("Testov321")
+                .setCaptcha("1234")
+                .setCaptchaSecret("4321");
 
         registerRequest.setPassword("123");
         mockMvc.perform(MockMvcRequestBuilders
@@ -243,6 +174,77 @@ public class AuthUserControllerTest extends AbstractTest {
     }
 
     @Test
+    void checkWithoutPrincipal() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/auth/check")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(false));
+    }
+
+    @Test
+    void loginTest() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setEmail(user.getEmail());
+        authRequest.setPassword(user.getPassword());
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(authRequest)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true)).andReturn();
+    }
+
+    @Test
+    void badLoginTest() throws Exception {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setEmail(user.getEmail());
+        authRequest.setPassword("111111");
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(authRequest)))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(false)).andReturn();
+
+    }
+
+
+    @Test
+    @WithMockUser(username = "test@test.ru", authorities = "user:write")
+    void checkWithPrincipal() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/auth/check")
+                        .principal(() -> "test@test.ru")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.id")
+                        .value(userRepository.findByEmail("test@test.ru").get().getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.moderation")
+                        .value(false))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.user.moderationCount")
+                        .value(0));
+    }
+
+    @Test
+    @WithMockUser(username = "test@test.ru", authorities = "user:write")
+    void logoutTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/api/auth/logout")
+                        .principal(() -> "test@test.ru")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true)).andReturn();
+
+    }
+
+    @Test
     void restorePasswordTest() throws Exception {
 
         String correctEmail = user.getEmail();
@@ -282,7 +284,8 @@ public class AuthUserControllerTest extends AbstractTest {
                         .content(mapper.writeValueAsString(changePasswordRequest))
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.result").value(true));
 
         changePasswordRequest.setCode(user.getCode());
         changePasswordRequest.setPassword("123");

@@ -14,7 +14,9 @@ public final class Constants {
     public static final String BASE_ROBOTIC_AVA_URL = "https://robohash.org/";
     public static final String AVATAR_CONFIG = ".png?size=360x360&set=set";
     public static final String MAIL_MASSAGE_BASE_URL = "http://localhost:8080/login/change-password/";
+    public static final String UPLOAD_FOLDER_PREFIX = "upload";
     public static final String NAME_ERR = "name";
+    public static final String USER_ERR = "user";
     public static final String EMAIL_ERR = "email";
     public static final String CAPTCHA_ERR = "captcha";
     public static final String CODE_ERR = "code";
@@ -38,6 +40,8 @@ public final class Constants {
     public static final String TITLE_ANSWER = "Заголовок не установлен или слишком короткий";
     public static final String TEXT_COMMENT_ANSWER = "Текст комментария не задан или слишком короткий";
     public static final String USER_NOT_FOUND = "Пользователь с почтовым ящиком %s не найден";
+    public static final String USER_NOT_AUTHORISED = "Пользователь не авторизован";
+    public static final String ACCESS_DENIED = "Доступ для пользователя не разрешен";
     public static final String USER_NOT_FOUND_OR_BLOCKED = "Пользователь не существует или заблокирован";
     public static final String COMMENT_NOT_FOUND = "Комментарий с id %d не существует или заблокирован";
     public static final String POST_NOT_FOUND = "Пост с id %d не существует или заблокирован";

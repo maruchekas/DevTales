@@ -1,6 +1,7 @@
 package org.skillbox.devtales.api.request;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 import org.skillbox.devtales.model.Tag;
 
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Accessors(chain = true)
 public class PostRequest {
 
     private Long timestamp;
