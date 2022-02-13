@@ -85,16 +85,16 @@ public class ProfileService {
                 user.setPhoto(null);
             }
         } else if (editRequest.getPhoto() != null) {
-            if(validatePhoto((MultipartFile) editRequest.getPhoto()).isEmpty())
-            user.setPhoto(imageService.uploadImgToCloudAndGetUrl((MultipartFile) editRequest.getPhoto(), principal));
+            if (validatePhoto((MultipartFile) editRequest.getPhoto()).isEmpty())
+                user.setPhoto(imageService.uploadImgToCloudAndGetUrl((MultipartFile) editRequest.getPhoto(), principal));
         }
 
         return new EditProfileData().setUser(user).setErrors(errors);
     }
 
-    private Map<String, String> validatePhoto(MultipartFile photo){
+    private Map<String, String> validatePhoto(MultipartFile photo) {
         Map<String, String> errors = new HashMap<>();
-        if (!Pattern.matches("image/(jpg|png|jpeg)", photo.getContentType())){
+        if (!Pattern.matches("image/(jpg|png|jpeg)", photo.getContentType())) {
             errors.put(CONTENT_TYPE_ERR, CONTENT_TYPE_ANSWER);
         }
         if (photo.getSize() > IMG_SIZE_LIMIT) {
@@ -107,11 +107,11 @@ public class ProfileService {
 
 }
 
-    @Setter
-    @Getter
-    @RequiredArgsConstructor
-    @Accessors(chain = true)
-    class EditProfileData {
-        private User user;
-        private Map<String, String> errors;
-    }
+@Setter
+@Getter
+@RequiredArgsConstructor
+@Accessors(chain = true)
+class EditProfileData {
+    private User user;
+    private Map<String, String> errors;
+}

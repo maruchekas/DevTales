@@ -23,7 +23,7 @@ public class StatisticsControllerTest extends AbstractTest {
     }
 
     @Test
-    void allStatisticsTest() throws Exception{
+    void allStatisticsTest() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/statistics/all")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -33,7 +33,7 @@ public class StatisticsControllerTest extends AbstractTest {
 
     @Test
     @WithMockUser(username = "test@test.ru", authorities = "user:write")
-    void myStatisticsTest() throws Exception{
+    void myStatisticsTest() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/statistics/my")
                         .principal(() -> "test@test.ru")

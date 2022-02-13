@@ -23,7 +23,7 @@ public class ModerateController {
 
     @PostMapping("/moderation")
     @PreAuthorize("hasAuthority('user:moderate')")
-    public ResponseEntity<CommonResponse> moderatePost(@RequestBody ModeratePostRequest moderatePostRequest, Principal principal){
+    public ResponseEntity<CommonResponse> moderatePost(@RequestBody ModeratePostRequest moderatePostRequest, Principal principal) {
         return new ResponseEntity<>(postService.moderatePost(moderatePostRequest, principal), HttpStatus.OK);
     }
 }

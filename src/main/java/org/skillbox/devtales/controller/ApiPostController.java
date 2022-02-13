@@ -6,7 +6,6 @@ import org.skillbox.devtales.api.request.VoteRequest;
 import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostDto;
-import org.skillbox.devtales.exception.UnAuthorisedUserException;
 import org.skillbox.devtales.exception.handling.NotAllowedToPerformActionException;
 import org.skillbox.devtales.service.PostService;
 import org.skillbox.devtales.service.VoteService;
@@ -90,7 +89,7 @@ public class ApiPostController {
 
     @PostMapping("")
     @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<CommonResponse> addPost(@RequestBody PostRequest postRequest, Principal principal){
+    public ResponseEntity<CommonResponse> addPost(@RequestBody PostRequest postRequest, Principal principal) {
 
         return new ResponseEntity<>(postService.addPost(postRequest, principal), HttpStatus.OK);
     }

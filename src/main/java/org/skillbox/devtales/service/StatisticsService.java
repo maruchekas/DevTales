@@ -25,7 +25,7 @@ public class StatisticsService {
     private final SettingsService settingsService;
 
     public StatisticsResponse getMyStatistics(Principal principal) throws UnAuthorisedUserException {
-        if (principal == null){
+        if (principal == null) {
             throw new UnAuthorisedUserException();
         }
         int userId = userService.getUserByEmail(principal.getName()).getId();
@@ -39,8 +39,8 @@ public class StatisticsService {
 
     public StatisticsResponse getAllStatistics(Principal principal) throws UnAuthorisedUserException {
 
-        if (!settingsService.getGlobalSettings().isStatisticsIsPublic()){
-            if (principal != null && userService.getUserByEmail(principal.getName()).getIsModerator() != 1){
+        if (!settingsService.getGlobalSettings().isStatisticsIsPublic()) {
+            if (principal != null && userService.getUserByEmail(principal.getName()).getIsModerator() != 1) {
                 throw new UnAuthorisedUserException();
             }
         }
@@ -53,43 +53,43 @@ public class StatisticsService {
                 .setFirstPublication(getFirstPublication());
     }
 
-    private int getPostsCount(){
+    private int getPostsCount() {
         return postRepository.findAll().size();
     }
 
-    private int getPostsCountByUserId(int userId){
+    private int getPostsCountByUserId(int userId) {
         return postRepository.findCountAllPostsByUserId(userId).orElse(0);
     }
 
-    private int getViewsCount(){
+    private int getViewsCount() {
         return postRepository.findViewsCount();
     }
 
-    private int getViewsCountByUserId(int userId){
+    private int getViewsCountByUserId(int userId) {
         return postRepository.findViewsCountByUserId(userId).orElse(0);
     }
 
-    private int getLikesCount(){
+    private int getLikesCount() {
         return postVoteRepository.findCountLikes().orElse(0);
     }
 
-    private int getLikesCountByUserId(int userId){
+    private int getLikesCountByUserId(int userId) {
         return postVoteRepository.findCountLikesByUser(userId).orElse(0);
     }
 
-    private int getDislikesCount(){
+    private int getDislikesCount() {
         return postVoteRepository.findCountDislikes().orElse(0);
     }
 
-    private int getDislikesCountByUserId(int userId){
+    private int getDislikesCountByUserId(int userId) {
         return postVoteRepository.findCountDislikesByUser(userId).orElse(0);
     }
 
-    private long getFirstPublication(){
+    private long getFirstPublication() {
         return DateTimeUtil.getTimestamp(postRepository.findFirstPost().orElse(LocalDateTime.MIN));
     }
 
-    private long getFirstPublicationByUserId(int userId){
+    private long getFirstPublicationByUserId(int userId) {
         return DateTimeUtil.getTimestamp(postRepository.findFirstPostByUserId(userId).orElse(LocalDateTime.MIN));
     }
 }

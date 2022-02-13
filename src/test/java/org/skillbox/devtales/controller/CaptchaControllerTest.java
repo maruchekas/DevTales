@@ -38,7 +38,7 @@ public class CaptchaControllerTest extends AbstractTest {
     }
 
     @Test
-    void getCaptchaTest() throws Exception{
+    void getCaptchaTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(("/api/auth/captcha"))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print())

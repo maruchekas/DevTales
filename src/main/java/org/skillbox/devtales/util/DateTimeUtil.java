@@ -13,7 +13,7 @@ public class DateTimeUtil {
                 TimeZone.getDefault().toZoneId()));
     }
 
-    public static long getTimestamp(LocalDateTime localDateTime){
+    public static long getTimestamp(LocalDateTime localDateTime) {
         return ZonedDateTime.of(localDateTime, ZoneId.systemDefault()).toInstant().getEpochSecond();
     }
 

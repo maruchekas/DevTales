@@ -32,7 +32,7 @@ public class VoteService {
                         .setPost(post)
                         .setUser(user)
                         .setTime(LocalDateTime.now()));
-        if (postVote.getValue() == value){
+        if (postVote.getValue() == value) {
             return new CommonResponse().setResult(false);
         }
         postVote.setValue(value);

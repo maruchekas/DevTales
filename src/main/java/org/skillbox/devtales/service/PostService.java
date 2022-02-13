@@ -84,7 +84,7 @@ public class PostService {
 
         pagePosts = postRepository.findPostsByText(text, pageable);
 
-        if (pagePosts.getTotalElements() == 0){
+        if (pagePosts.getTotalElements() == 0) {
             text = new KbLayerInverter().invertString(text);
             pagePosts = postRepository.findPostsByText(text, pageable);
         }

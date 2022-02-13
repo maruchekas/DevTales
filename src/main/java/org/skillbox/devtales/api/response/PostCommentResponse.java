@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PostCommentResponse implements ParentResponse{
+public class PostCommentResponse implements ParentResponse {
 
     private int id;
 }

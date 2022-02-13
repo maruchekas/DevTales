@@ -14,13 +14,13 @@ import static org.skillbox.devtales.config.Constants.USER_NOT_AUTHORISED;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler
-    ResponseEntity<?> handleException(UnAuthorisedUserException unAuthorisedUserException){
+    ResponseEntity<?> handleException(UnAuthorisedUserException unAuthorisedUserException) {
 
         return new ResponseEntity<>(USER_NOT_AUTHORISED, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler
-    ResponseEntity<?> handleException(UserAccessDeniedException userAccessDeniedException){
+    ResponseEntity<?> handleException(UserAccessDeniedException userAccessDeniedException) {
         return new ResponseEntity<>(ACCESS_DENIED, HttpStatus.UNAUTHORIZED);
     }
 

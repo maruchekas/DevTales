@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class EditProfileWithPhotoRequest implements EditRequest{
+public class EditProfileWithPhotoRequest implements EditRequest {
 
     private MultipartFile photo;
     private String name;

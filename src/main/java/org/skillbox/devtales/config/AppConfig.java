@@ -14,19 +14,19 @@ public class AppConfig {
 
     private final static Map<String, Integer> sessions = new HashMap<>();
 
-    public static void addSessionId(String session, Integer userId){
+    public static void addSessionId(String session, Integer userId) {
         sessions.put(session, userId);
     }
 
-    public static void removeSession(String session){
+    public static void removeSession(String session) {
         sessions.remove(session);
     }
 
-    public static Map<String, Integer> getSessions(){
+    public static Map<String, Integer> getSessions() {
         return new HashMap<>(sessions);
     }
 
-    public static PasswordEncoder getPasswordEncoder(){
+    public static PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder(ENCODING_STRENGTH);
     }
 }

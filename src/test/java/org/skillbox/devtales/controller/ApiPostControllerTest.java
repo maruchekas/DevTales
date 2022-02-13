@@ -30,7 +30,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 
-import static org.skillbox.devtales.config.Constants.*;
+import static org.skillbox.devtales.config.Constants.TEXT_ANSWER;
+import static org.skillbox.devtales.config.Constants.TITLE_ANSWER;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -240,7 +241,6 @@ public class ApiPostControllerTest extends AbstractTest {
         postRequest.setTimestamp(DateTimeUtil.getTimestamp(LocalDateTime.now()));
         postRequest.setActive((byte) 1);
         postRequest.setTags(new String[0]);
-
 
 
         postRequest.setTitle(" ");

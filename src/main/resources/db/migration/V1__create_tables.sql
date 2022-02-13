@@ -28,29 +28,29 @@ create table global_settings
 
 create table post_comments
 (
-    id        integer     not null auto_increment,
-    text      TEXT        not null,
+    id        integer not null auto_increment,
+    text      TEXT    not null,
     time      datetime(6) not null,
     parent_id integer,
-    post_id   integer     not null,
-    user_id   integer     not null,
+    post_id   integer not null,
+    user_id   integer not null,
     primary key (id)
 );
 
 create table post_votes
 (
-    id      integer     not null auto_increment,
+    id      integer not null auto_increment,
     time    datetime(6) not null,
-    value   TINYINT     not null,
-    post_id integer     not null,
-    user_id integer     not null,
+    value   TINYINT not null,
+    post_id integer not null,
+    user_id integer not null,
     primary key (id)
 );
 
 create table posts
 (
     id                integer      not null auto_increment,
-    date_time         datetime(6)  not null,
+    date_time         datetime(6) not null,
     is_active         TINYINT      not null,
     moderation_status varchar(255) not null,
     text              TEXT         not null,
@@ -85,6 +85,6 @@ create table users
     name         varchar(255) not null,
     password     varchar(255) not null,
     photo        varchar(255),
-    reg_time     datetime(6)  not null,
+    reg_time     datetime(6) not null,
     primary key (id)
 );

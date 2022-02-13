@@ -50,13 +50,13 @@ public class ApiAuthController {
     }
 
     @PostMapping("/restore")
-    public ResponseEntity<CommonResponse> restorePassword(@RequestBody RestoreRequest restoreRequest){
+    public ResponseEntity<CommonResponse> restorePassword(@RequestBody RestoreRequest restoreRequest) {
 
         return new ResponseEntity<>(authUserService.restorePassword(restoreRequest.getEmail()), HttpStatus.OK);
     }
 
     @PostMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) {
 
         return new ResponseEntity<>(authUserService.changePassword(changePasswordRequest), HttpStatus.OK);
     }

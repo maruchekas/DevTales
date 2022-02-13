@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class EditProfileRequest implements EditRequest{
+public class EditProfileRequest implements EditRequest {
 
     private String photo;
     private String name;

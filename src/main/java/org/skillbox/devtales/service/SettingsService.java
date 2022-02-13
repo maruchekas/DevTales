@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.skillbox.devtales.api.request.EditSettingsRequest;
 import org.skillbox.devtales.api.response.SettingsResponse;
-import org.skillbox.devtales.exception.UnAuthorisedUserException;
 import org.skillbox.devtales.exception.UserAccessDeniedException;
 import org.skillbox.devtales.model.GlobalSetting;
 import org.skillbox.devtales.model.User;
@@ -14,10 +13,8 @@ import org.skillbox.devtales.repository.GlobalSettingRepository;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityNotFoundException;
-
 import java.security.Principal;
 
-import static org.skillbox.devtales.config.Constants.ACCESS_DENIED;
 import static org.skillbox.devtales.config.Constants.WRONG_PARAMETER;
 
 @Component
@@ -39,7 +36,7 @@ public class SettingsService {
 
     public SettingsResponse saveGlobalSettings(EditSettingsRequest editSettingsRequest, Principal principal) throws UserAccessDeniedException {
         User user = userService.getUserByEmail(principal.getName());
-        if (user.getIsModerator() != 1){
+        if (user.getIsModerator() != 1) {
             throw new UserAccessDeniedException();
         }
 

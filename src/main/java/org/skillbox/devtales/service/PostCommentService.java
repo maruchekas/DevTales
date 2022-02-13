@@ -35,7 +35,7 @@ public class PostCommentService {
 
     public ResponseEntity<ParentResponse> addCommentToPost(PostCommentRequest postCommentRequest, Principal principal) throws UnAuthorisedUserException {
 
-        if (principal == null){
+        if (principal == null) {
             throw new UnAuthorisedUserException();
         }
         PostComment postComment = new PostComment();

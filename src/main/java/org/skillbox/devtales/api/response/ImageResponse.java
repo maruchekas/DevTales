@@ -7,8 +7,8 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ImageResponse implements ParentResponse{
+public class ImageResponse implements ParentResponse {
 
- private String url;
+    private String url;
 
 }

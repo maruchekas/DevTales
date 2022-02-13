@@ -6,7 +6,6 @@ import org.skillbox.devtales.api.response.CalendarResponse;
 import org.skillbox.devtales.api.response.InitResponse;
 import org.skillbox.devtales.api.response.SettingsResponse;
 import org.skillbox.devtales.api.response.TagResponse;
-import org.skillbox.devtales.exception.UnAuthorisedUserException;
 import org.skillbox.devtales.exception.UserAccessDeniedException;
 import org.skillbox.devtales.service.CalendarService;
 import org.skillbox.devtales.service.SettingsService;

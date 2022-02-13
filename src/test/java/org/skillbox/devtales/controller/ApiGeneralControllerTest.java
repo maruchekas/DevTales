@@ -144,7 +144,7 @@ public class ApiGeneralControllerTest extends AbstractTest {
     void uploadImageTest() throws Exception {
 
         FileInputStream fis = new FileInputStream("src/main/resources/static/default-1.png");
-        MockMultipartFile image = new MockMultipartFile("image","test.png",
+        MockMultipartFile image = new MockMultipartFile("image", "test.png",
                 "image/png", fis.readAllBytes());
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/image").file(image)
