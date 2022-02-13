@@ -7,6 +7,7 @@ import org.skillbox.devtales.api.response.CommonResponse;
 import org.skillbox.devtales.api.response.PostResponse;
 import org.skillbox.devtales.dto.PostDto;
 import org.skillbox.devtales.exception.UnAuthorisedUserException;
+import org.skillbox.devtales.exception.handling.NotAllowedToPerformActionException;
 import org.skillbox.devtales.service.PostService;
 import org.skillbox.devtales.service.VoteService;
 import org.springframework.http.HttpHeaders;
@@ -103,17 +104,17 @@ public class ApiPostController {
     }
 
     @PostMapping("/like")
-    public ResponseEntity<CommonResponse> putLike(@RequestBody VoteRequest voteRequest, Principal principal) {
-        if (principal == null){
-            return new ResponseEntity<>(new CommonResponse().setResult(false), HttpStatus.OK);
+    public ResponseEntity<CommonResponse> putLike(@RequestBody VoteRequest voteRequest, Principal principal) throws NotAllowedToPerformActionException {
+        if (principal == null) {
+            throw new NotAllowedToPerformActionException();
         }
         return new ResponseEntity<>(voteService.castVote(voteRequest, POSITIVE_VOTE, principal), HttpStatus.OK);
     }
 
     @PostMapping("/dislike")
-    public ResponseEntity<CommonResponse> putDislike(@RequestBody VoteRequest voteRequest, Principal principal) throws UnAuthorisedUserException {
-        if (principal == null){
-            throw  new UnAuthorisedUserException();
+    public ResponseEntity<CommonResponse> putDislike(@RequestBody VoteRequest voteRequest, Principal principal) throws NotAllowedToPerformActionException {
+        if (principal == null) {
+            throw new NotAllowedToPerformActionException();
         }
         return new ResponseEntity<>(voteService.castVote(voteRequest, NEGATIVE_VOTE, principal), HttpStatus.OK);
     }

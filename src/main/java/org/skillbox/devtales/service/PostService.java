@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static org.skillbox.devtales.config.Constants.*;
 

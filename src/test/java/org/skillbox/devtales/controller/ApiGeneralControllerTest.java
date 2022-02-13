@@ -1,12 +1,10 @@
 package org.skillbox.devtales.controller;
 
-import org.apache.http.entity.ContentType;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skillbox.devtales.AbstractTest;
-import org.skillbox.devtales.api.request.EditProfileWithPhotoRequest;
 import org.skillbox.devtales.api.request.EditSettingsRequest;
 import org.skillbox.devtales.model.User;
 import org.skillbox.devtales.repository.UserRepository;
@@ -21,18 +19,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 
-import static org.skillbox.devtales.config.Constants.CAPTCHA_IMAGE_PREFIX;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
