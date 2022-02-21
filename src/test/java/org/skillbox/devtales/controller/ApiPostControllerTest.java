@@ -289,10 +289,10 @@ public class ApiPostControllerTest extends AbstractTest {
     void getMyPostsTest() throws Exception {
 
         User user = userRepository.findAll().get(0);
-        Page<Post> published = postRepository.findMyPosts("ACCEPTED", user.getId(), (byte) 1, pageable);
-        Page<Post> active = postRepository.findMyPosts("NEW", user.getId(), (byte) 1, pageable);
-        Page<Post> declined = postRepository.findMyPosts("DECLINED", user.getId(), (byte) 1, pageable);
-        Page<Post> inactive = postRepository.findMyPosts("NEW", user.getId(), (byte) 0, pageable);
+        Page<Post> published = postRepository.findMyPosts(new String[]{"ACCEPTED"}, user.getId(), (byte) 1, pageable);
+        Page<Post> active = postRepository.findMyPosts(new String[]{"NEW"}, user.getId(), (byte) 1, pageable);
+        Page<Post> declined = postRepository.findMyPosts(new String[]{"DECLINED"}, user.getId(), (byte) 1, pageable);
+        Page<Post> inactiveAccepted = postRepository.findMyPosts(new String[]{"ACCEPTED", "NEW"}, user.getId(), (byte) 0, pageable);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/api/post/my")
@@ -326,7 +326,7 @@ public class ApiPostControllerTest extends AbstractTest {
                         .principal(user::getEmail)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("status", "inactive"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(inactive.getTotalElements()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(inactiveAccepted.getTotalElements()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -451,7 +451,7 @@ public class ApiPostControllerTest extends AbstractTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/api/post/byDate")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("date", "2022-01-31"))
+                        .param("date", "2022-02-10"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(1))
                 .andExpect(MockMvcResultMatchers.status().isOk());

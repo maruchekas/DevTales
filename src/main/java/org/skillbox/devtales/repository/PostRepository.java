@@ -87,9 +87,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     int findCountPostsForModeration();
 
     @Query(value = "select * from posts p " +
-            "where p.user_id = :userId and p.moderation_status = :status and p.is_active = :isActive ",
+            "where p.user_id = :userId and p.moderation_status in :status and p.is_active = :isActive ",
             nativeQuery = true)
-    Page<Post> findMyPosts(String status, int userId, byte isActive, Pageable pageable);
+    Page<Post> findMyPosts(String[] status, int userId, byte isActive, Pageable pageable);
 
     @Query(value = "select date_format(p.date_time, '%Y') as p_year " +
             "from posts p " +

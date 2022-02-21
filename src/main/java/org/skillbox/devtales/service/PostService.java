@@ -124,25 +124,29 @@ public class PostService {
     public PostResponse getMyPosts(int offset, int limit, String status, Principal principal) {
         Pageable pageable = PageRequest.of(offset / limit, limit);
         Page<Post> pagePosts;
-        String inStatus;
+        String[] inStatus;
         byte isActive;
         User user = userService.getUserByEmail(principal.getName());
 
         switch (status) {
             case "pending" -> {
-                inStatus = "NEW";
+                inStatus = new String[]{"NEW"};
                 isActive = 1;
             }
             case "declined" -> {
-                inStatus = "DECLINED";
+                inStatus = new String[]{"DECLINED"};
                 isActive = 1;
             }
             case "published" -> {
-                inStatus = "ACCEPTED";
+                inStatus = new String[]{"ACCEPTED"};
                 isActive = 1;
             }
+            case "inactive" -> {
+                inStatus = new String[]{"ACCEPTED", "NEW"};
+                isActive = 0;
+            }
             default -> {
-                inStatus = "NEW";
+                inStatus = new String[]{"NEW"};
                 isActive = 0;
             }
         }

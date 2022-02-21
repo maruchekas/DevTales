@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static org.skillbox.devtales.config.Constants.*;
 
@@ -152,6 +153,10 @@ public class AuthUserService {
         }
 
         if (name.length() < 2) {
+            errors.put(NAME_ERR, NAME_ANSWER);
+        }
+
+        if (!Pattern.matches(NAME_FORMAT_PATTERN, name) || name.length() < 2) {
             errors.put(NAME_ERR, NAME_ANSWER);
         }
 
